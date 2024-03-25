@@ -72,6 +72,36 @@ StmtDecl {
     ]
 }
 
+decl main: Unit -> Int = [
+    int x = 0
+    while x == 0 then
+        printLn "keep going";
+        x = x + 1
+        x = x + 2
+    return 0
+]
+
+StmtFuncDecl {
+    ident = "main",
+    type = tyarrows_ [unit_, int_]
+    body = [
+        VarAssign("x", TmConst(0))
+        StmtWhile {
+            condition = (phi("x", "x2") == 0)
+            body = [
+                printLn,
+                VarAssign("x1", Expr(x+1))
+                VarAssign("x2", Expr(x1+2))
+            ]
+            parent = "main"
+        }
+        StmtReturn {
+            expr = TmConst(0)
+        }
+    ] 
+    parent = unit_
+}
+
 -- either handle direct code generation in imperative backend (e.g. to JVM)
 -- or translate to existing functional fragments, by transforming the AST before code generation (e.g. to OCaml)
 
