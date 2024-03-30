@@ -102,6 +102,28 @@ StmtFuncDecl {
     parent = unit_
 }
 
+let foo = lam x. lam y.
+    addi (let z = return 5 in x) y
+in
+
+
+lang ImperativeMexpr
+    syn Expr =
+        --| TmFuncDecl {body: [Stmt], ty: Type, tyParams: [Type], tyAnnots: [Type] }
+        | TmFuncDecl {body: [Stmt], ty: Type, params: [{ty: Type, tyAnnot: Type, ident: Name}] }
+    
+    syn Stmt = 
+        | StmtMatch {target : Expr,
+                    pat : Pat,
+                    thn : [Stmt],
+                    els : [Stmt]}
+        | StmtReturn {body: Expr}
+        | StmtWhile {condition: Expr, body: [Stmt]}
+        | StmtVarDecl {ident: Name, ty: Type, value: Expr}
+        | StmtVarAssign {ident: Name, value: Expr}
+        | StmtExpr {body: Expr}
+
+
 -- either handle direct code generation in imperative backend (e.g. to JVM)
 -- or translate to existing functional fragments, by transforming the AST before code generation (e.g. to OCaml)
 
