@@ -107,7 +107,44 @@ let foo = lam x. lam y.
 in
 
 
-lang ImperativeMexpr
+-- TmFuncDecl {
+--     body = [
+--         StmtReturn {
+--             body = TmConst(0)
+--         }
+--     ],
+--     ty = tyarrows_ [tyunit_, tyint_],
+--     params = [],
+--     ident = "main"
+-- }
+
+-- -> 
+
+-- from mexpr/ast-builder,.mc
+-- and name.mc
+
+-- let tmLam = use MExprAst in
+--   lam info : Info.
+--   lam ty : Type.
+--   lam ident : Name.
+--   lam tyAnnot : Type.
+--   lam body : Expr.
+--   TmLam {
+--     ident = ident,
+--     tyAnnot = tyAnnot,
+--     tyParam = tyAnnot,
+--     ty = ty,
+--     body = body,
+--     info = info
+--   }
+
+let x = lam. y:Int (y+1)
+
+-- TODO: ask if there's a "none"/"null" type in Miking 
+tmLam NoInfo tyint_ (nameSym "x") 
+
+
+lang ImperativeMExpr
     syn Expr =
         --| TmFuncDecl {body: [Stmt], ty: Type, tyParams: [Type], tyAnnots: [Type] }
         | TmFuncDecl {body: [Stmt], ty: Type, params: [{ty: Type, tyAnnot: Type, ident: Name}] }
@@ -123,6 +160,16 @@ lang ImperativeMexpr
         | StmtVarAssign {ident: Name, value: Expr}
         | StmtExpr {body: Expr}
 
+    sem translateStmt = 
+        | StmtExpr -> let ??? = body in ...
+        | StmtReturn -> body
+
+    sem translateFuncDecl = 
+    -- tmLam argument order:info, type, ident, tyAnnot
+    -- acc could look something like:
+    -- TmLet { inexpr = {fill this in with the fold (either a lambda or an expr)}  } -- similar to TreePpl
+        | TmFuncDecl func -> let mexpr_body = foldr translateStmt acc func.body in
+            tmLam NoInfo func.ty (nameSym "x") tyAnnot mexpr_body -- TODO: fill out tyAnnot
 
 -- either handle direct code generation in imperative backend (e.g. to JVM)
 -- or translate to existing functional fragments, by transforming the AST before code generation (e.g. to OCaml)
