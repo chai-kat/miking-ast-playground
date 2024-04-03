@@ -12,12 +12,16 @@ use ImperativeMExpr in
 let imperative_ast = TmFuncDecl {
     body = [
         StmtReturn {
-            body = const_ tyint_ 0
+            body = int_ 0
         }
     ],
     ty = tyarrows_ [tyunit_, tyint_],
-    params = [],
-    ident = "main"
+    -- TODO: handle the case where params is empty!! 
+    params = [
+        {ty = tyunknown_, tyAnnot = tyunknown_, ident = (nameSym "x")}
+        ]
+    -- ident = nameSym "main"
+    -- tyAnnot = tyunknown_
 } in
 
 dprintLn (translateFuncDecl imperative_ast)

@@ -2,8 +2,9 @@
 -- converts statement constructs to MExpr + a new TmFuncDecl expression construct
 include "mexpr/ast.mc"
 include "mexpr/ast-builder.mc"
+include "mexpr/type.mc"
 
-lang ImperativeMExpr
+lang ImperativeMExpr = Ast
     -- TODO: maybe change param.ident to param.name
     syn Expr =
         | TmFuncDecl {body: [Stmt], ty: Type, params: [{ty: Type, tyAnnot: Type, ident: Name}]}
@@ -24,7 +25,7 @@ lang ImperativeMExpr
         | StmtExpr e -> e.body
         | StmtReturn r -> r.body
         | StmtVarDecl decl -> nlet_ decl.ident decl.ty (ref_ decl.value)
-        | StmtVarAssign a -> modref_ a.ident a.value
+        | StmtVarAssign a -> modref_ (nvar_ a.ident) a.value 
         -- | 
 
 
@@ -33,7 +34,7 @@ lang ImperativeMExpr
         | TmFuncDecl func -> 
             -- TODO: consider passing params as references or renaming in body
                 -- could rename all occurences inside the body if we do automatic reference conversion
-            let mexpr_body = bindall_ (map_ translateStmt func.body) in
+            let mexpr_body = bindall_ (map translateStmt func.body) in
             let tyAnnot = func.ty in  -- TODO: fill out tyAnnot
 
             -- want to create a TmLam for each variable in params. 
