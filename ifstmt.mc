@@ -146,7 +146,6 @@ tmLam NoInfo tyint_ (nameSym "x")
 
 lang ImperativeMExpr
     syn Expr =
-        --| TmFuncDecl {body: [Stmt], ty: Type, tyParams: [Type], tyAnnots: [Type] }
         | TmFuncDecl {body: [Stmt], ty: Type, params: [{ty: Type, tyAnnot: Type, ident: Name}] }
     
     syn Stmt = 
