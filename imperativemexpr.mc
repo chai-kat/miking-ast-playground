@@ -3,8 +3,9 @@
 include "mexpr/ast.mc"
 include "mexpr/ast-builder.mc"
 include "mexpr/type.mc"
+include "symbolize.mc"
 
-lang ImperativeMExpr = Ast
+lang ImperativeMExpr = Ast + Sym
     -- TODO: maybe change param.ident to param.name
     syn Expr =
         | TmFuncDecl {body: [Stmt], ty: Type, params: [{ty: Type, tyAnnot: Type, ident: Name}]}
@@ -21,6 +22,12 @@ lang ImperativeMExpr = Ast
         | StmtWhile {condition: Expr, body: [Stmt]}
 
 
+    -- sem symbolizeStmt (env : SymEnv) =
+    --     | StmtExpr e -> symbolizeExpr e
+    --     | StmtReturn r -> symbolizeExpr r
+    --     | StmtVarDecl decl -> 
+    --     | StmtVarAssign a -> 
+
     sem translateStmt = 
         | StmtExpr e -> e.body
         | StmtReturn r -> r.body
@@ -33,8 +40,9 @@ lang ImperativeMExpr = Ast
     -- tmLam argument order:info, type, ident, tyAnnot, body
         | TmFuncDecl func -> 
             -- TODO: consider passing params as references or renaming in body
-                -- could rename all occurences inside the body if we do automatic reference conversion
+            -- could rename all occurences inside the body if we do automatic reference conversion
             let mexpr_body = bindall_ (map translateStmt func.body) in
+            let symbolized_mexpr_body = symbolizeExpr mexpr_body in
             let tyAnnot = func.ty in  -- TODO: fill out tyAnnot
 
             -- want to create a TmLam for each variable in params. 
