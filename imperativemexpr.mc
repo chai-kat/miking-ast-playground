@@ -3,9 +3,11 @@
 include "mexpr/ast.mc"
 include "mexpr/ast-builder.mc"
 include "mexpr/type.mc"
-include "symbolize.mc"
+include "mexpr/symbolize.mc"
+include "mexpr/pprint.mc"
 
-lang ImperativeMExpr = Ast + Sym
+--TODO: delete MExprPrettyPrint
+lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
     -- TODO: maybe change param.ident to param.name
     syn Expr =
         | TmFuncDecl {body: [Stmt], ty: Type, params: [{ty: Type, tyAnnot: Type, ident: Name}]}
@@ -31,8 +33,8 @@ lang ImperativeMExpr = Ast + Sym
     sem translateStmt = 
         | StmtExpr e -> e.body
         | StmtReturn r -> r.body
-        | StmtVarDecl decl -> nlet_ decl.ident decl.ty (ref_ decl.value)
-        | StmtVarAssign a -> modref_ (nvar_ a.ident) a.value 
+        | StmtVarDecl decl -> ulet_ decl.ident decl.ty (ref_ decl.value) -- nlet_ decl.ident decl.ty (ref_ decl.value)
+        | StmtVarAssign a -> modref_ (var_ a.ident) a.value 
         -- | 
 
 
@@ -42,6 +44,10 @@ lang ImperativeMExpr = Ast + Sym
             -- TODO: consider passing params as references or renaming in body
             -- could rename all occurences inside the body if we do automatic reference conversion
             let mexpr_body = bindall_ (map translateStmt func.body) in
+            
+            -- dprintLn mexpr_body;
+            -- printLn (expr2str mexpr_body);
+
             let symbolized_mexpr_body = symbolizeExpr mexpr_body in
             let tyAnnot = func.ty in  -- TODO: fill out tyAnnot
 
@@ -54,6 +60,9 @@ lang ImperativeMExpr = Ast + Sym
             
             let firstparam = head func.params in
             let restparams = tail func.params in
+            -- dprintLn (tmLam (NoInfo ()) firstparam.ty firstparam.ident firstparam.tyAnnot mexpr_body);
+            -- printLn (expr2str (tmLam (NoInfo ()) firstparam.ty firstparam.ident firstparam.tyAnnot mexpr_body));
+
             foldr
                 (lam param. lam acc. (tmLam (NoInfo ()) param.ty param.ident param.tyAnnot) acc) -- function that is being applied onto
                 (tmLam (NoInfo ()) firstparam.ty firstparam.ident firstparam.tyAnnot mexpr_body) -- bottom case; initial acc that is applied onto f

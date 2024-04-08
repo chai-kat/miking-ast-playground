@@ -1,8 +1,9 @@
-include "./imperativemexpr.mc"
+include "../imperativemexpr.mc"
 include "mexpr/ast.mc"
 include "mexpr/ast-builder.mc"
 include "mexpr/pprint.mc"
 
+-- boot eval examples/example1.mc
 
 -- let const_ = use MExprAst in
 --   lam ty. lam c.
