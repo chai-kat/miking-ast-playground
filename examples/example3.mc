@@ -13,12 +13,26 @@ include "mexpr/pprint.mc"
 lang Foo = ImperativeMExpr + MExprPrettyPrint end
 
 mexpr 
+
+let factorial = lam x. 
+  let rec fact = lam n. 
+    if n == 0 then 1 else n * fact (n - 1) in
+  fact x
+
+let factorial = lam x:123. 
+    let x:234 = ref x
+    let result = ref 1 in
+    while ((deref x:234) != 0) do
+        modref x:234 = (deref x) - 1
+        modref result = (deref result) * x
+    endwhile
+in
+
 use Foo in
 let imperative_ast = funcdecl_ 
     [
-        -- nuvardecl_ (nameNoSym "y") (int_ 5),
-        return_ (nvar_ (nameNoSym "x")),
-        return_ (nvar_ (nameNoSym "y"))
+        return_ (var_ "x"),
+        nuvardecl_ "woow" (int_ 0)
     ]
 
     tyunknown_
@@ -29,10 +43,7 @@ let imperative_ast = funcdecl_
     ]
  in
 
-translateFuncDecl imperative_ast
-
--- dprintLn (translateFuncDecl imperative_ast);
--- printLn (expr2str (translateFuncDecl imperative_ast))
+dprintLn (translateFuncDecl imperative_ast)
 
 -- go with this, it works 
 -- nlet_ (concat param.ident "1") param.ty (ref_ (var_ param.ident))

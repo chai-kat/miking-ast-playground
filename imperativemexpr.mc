@@ -39,24 +39,40 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
 
 
     sem translateFuncDecl = 
-    -- tmLam argument order:info, type, ident, tyAnnot, body
-        | TmFuncDecl func -> 
+        | TmFuncDecl func ->
+            -- TODO: take in the environment from outside this function
+            let env = symEnvDefault in
+        
             -- TODO: consider passing params as references or renaming in body
             -- could rename all occurences inside the body if we do automatic reference conversion
-            let mexpr_body = bindall_ (map translateStmt func.body) in
+            let mexpr_body = bindall_ 
+                (map (lam x. 
+                    dprintLn (translateStmt x);
+                    -- printLn (expr2str (translateStmt x));
+                    printLn "\n";
+                    translateStmt x
+                ) 
+                func.body) 
+            in
             
+            -- make a let without a symbol here (let_ does nameNoSym internally)
+            -- then symbolize later
+            -- let_ 
+
             -- dprintLn mexpr_body;
             -- printLn (expr2str mexpr_body);
 
-            let symbolized_mexpr_body = symbolizeExpr mexpr_body in
-            let tyAnnot = func.ty in  -- TODO: fill out tyAnnot
 
+            -- let mexpr_body = symbolizeExpr env mexpr_body in
+            let tyAnnot = func.ty in  -- TODO: fill out tyAnnot
+    
             -- want to create a TmLam for each variable in params. 
             -- with something like this for the bottommost lambda:
             -- tmLam NoInfo func.ty (nameSym "x") tyAnnot mexpr_body
             
             -- TODO: reverse the parameters so we bind in the order the we're given
             -- let [firstparam | restparams] = reverse params in
+
             
             let firstparam = head func.params in
             let restparams = tail func.params in

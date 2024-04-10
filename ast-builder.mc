@@ -9,6 +9,7 @@ let return_ = use ImperativeMExpr in
     lam e. StmtReturn {body = e}
 
 -- named
+-- ident: Name, value: Expr
 let nvardecl_ = use ImperativeMExpr in
     lam ident. lam ty. lam value. StmtVarDecl {ident = ident, ty = ty, value = value}
 
