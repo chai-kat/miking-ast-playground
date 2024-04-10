@@ -16,16 +16,8 @@ mexpr
 use Foo in
 let imperative_ast = funcdecl_ 
     [
-        -- StmtVarAssign {
-        --     ident = (nameSym "x")
-        --     value = addi_ (var_  "x") (int_ 5)
-        -- }
         return_ (var_ "x"),
         nuvardecl_ "woow" (int_ 0)
-        
-        -- const_ (tyint_) 5
-        -- int_ 5 = const_ tyint_ 5
-
     ]
 
     tyunknown_
@@ -34,8 +26,6 @@ let imperative_ast = funcdecl_
     [
         param_ (nameNoSym "hello") tyunknown_
     ]
-    -- ident = nameSym "main"
-    -- tyAnnot = tyunknown_
  in
 
 dprintLn (translateFuncDecl imperative_ast)
