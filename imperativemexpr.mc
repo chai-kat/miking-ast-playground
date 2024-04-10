@@ -76,19 +76,26 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
             let params = reverse func.params in
 
             
-            let firstparam = head params in
-            let restparams = tail params in
-            -- dprintLn (tmLam (NoInfo ()) firstparam.ty firstparam.ident firstparam.tyAnnot mexpr_body);
-            -- printLn (expr2str (tmLam (NoInfo ()) firstparam.ty firstparam.ident firstparam.tyAnnot mexpr_body));
+            match params with [] then
+                let translated_func = foldr
+                    (lam param. lam acc. (tmLam (NoInfo ()) param.ty param.ident param.tyAnnot) acc) -- function that is being applied onto
+                    (tmLam (NoInfo ()) tyunknown_ (nameNoSym "") tyunknown_ mexpr_body) -- bottom case; initial acc that is applied onto f
+                    []
+                in
+                translated_func
+            else
+                let firstparam = head params in
+                let restparams = tail params in
+                -- dprintLn (tmLam (NoInfo ()) firstparam.ty firstparam.ident firstparam.tyAnnot mexpr_body);
+                -- printLn (expr2str (tmLam (NoInfo ()) firstparam.ty firstparam.ident firstparam.tyAnnot mexpr_body));
 
-            let translated_func = foldr
-                (lam param. lam acc. (tmLam (NoInfo ()) param.ty param.ident param.tyAnnot) acc) -- function that is being applied onto
-                (tmLam (NoInfo ()) firstparam.ty firstparam.ident firstparam.tyAnnot mexpr_body) -- bottom case; initial acc that is applied onto f
-                restparams
-            in 
-            
-            translated_func
-            -- symbolizeExpr env translated_func
+                let translated_func = foldr
+                    (lam param. lam acc. (tmLam (NoInfo ()) param.ty param.ident param.tyAnnot) acc) -- function that is being applied onto
+                    (tmLam (NoInfo ()) firstparam.ty firstparam.ident firstparam.tyAnnot mexpr_body) -- bottom case; initial acc that is applied onto f
+                    restparams
+                in 
+                -- translated_func
+            symbolizeExpr env translated_func
 end
 
 -- TmFuncDecl {
