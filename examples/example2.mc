@@ -18,21 +18,23 @@ let imperative_ast = funcdecl_
     [
         -- nuvardecl_ (nameNoSym "y") (int_ 5),
         return_ (nvar_ (nameNoSym "x")),
-        return_ (nvar_ (nameNoSym "y"))
+        return_ (nvar_ (nameNoSym "x")),
+        return_ (nvar_ (nameNoSym "z"))
     ]
 
     tyunknown_
     
     -- TODO: handle the case where params is empty!! 
     [
+        -- how are these getting symbols when we explicitly say noSym?? Overwriting our environment symbols?
         param_ (nameNoSym "hello") tyunknown_
     ]
  in
 
-translateFuncDecl imperative_ast
+-- translateFuncDecl imperative_ast
 
--- dprintLn (translateFuncDecl imperative_ast);
--- printLn (expr2str (translateFuncDecl imperative_ast))
+dprintLn (translateFuncDecl imperative_ast)
+printLn (expr2str (translateFuncDecl imperative_ast))
 
 -- go with this, it works 
 -- nlet_ (concat param.ident "1") param.ty (ref_ (var_ param.ident))

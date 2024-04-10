@@ -31,8 +31,8 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
     --     | StmtVarAssign a -> 
 
     sem translateStmt = 
-        | StmtExpr e -> e.body
-        | StmtReturn r -> r.body
+        | StmtExpr e -> ulet_ "tmp" e.body -- what is the purpose of a standalone expression besides side effects?
+        | StmtReturn r -> ulet_ "tmp" r.body --
         | StmtVarDecl decl -> ulet_ decl.ident decl.ty (ref_ decl.value) -- nlet_ decl.ident decl.ty (ref_ decl.value)
         | StmtVarAssign a -> modref_ (var_ a.ident) a.value 
         -- | 
@@ -47,9 +47,9 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
             -- could rename all occurences inside the body if we do automatic reference conversion
             let mexpr_body = bindall_ 
                 (map (lam x. 
-                    dprintLn (translateStmt x);
+                    -- dprintLn (translateStmt x);
                     -- printLn (expr2str (translateStmt x));
-                    printLn "\n";
+                    -- printLn "\n";
                     translateStmt x
                 ) 
                 func.body) 
@@ -72,17 +72,23 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
             
             -- TODO: reverse the parameters so we bind in the order the we're given
             -- let [firstparam | restparams] = reverse params in
+            -- let params = func.params in
+            let params = reverse func.params in
 
             
-            let firstparam = head func.params in
-            let restparams = tail func.params in
+            let firstparam = head params in
+            let restparams = tail params in
             -- dprintLn (tmLam (NoInfo ()) firstparam.ty firstparam.ident firstparam.tyAnnot mexpr_body);
             -- printLn (expr2str (tmLam (NoInfo ()) firstparam.ty firstparam.ident firstparam.tyAnnot mexpr_body));
 
-            foldr
+            let translated_func = foldr
                 (lam param. lam acc. (tmLam (NoInfo ()) param.ty param.ident param.tyAnnot) acc) -- function that is being applied onto
                 (tmLam (NoInfo ()) firstparam.ty firstparam.ident firstparam.tyAnnot mexpr_body) -- bottom case; initial acc that is applied onto f
                 restparams
+            in 
+            
+            translated_func
+            -- symbolizeExpr env translated_func
 end
 
 -- TmFuncDecl {
