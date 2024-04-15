@@ -31,8 +31,12 @@ mexpr-extended
             then value
             else main1 env -- if we get a lambda here (represent with a tuple (value/lambda, expr type return thingy here))
 
-        let y = ref 2 -- illegal in MExpr? 
-          
+        let y = ref 2 -- illegal in MExpr?
+
+-- top-level lambda which calls the first continuation. 
+-- every time we hit a branch we add a continuation to the stack?¿ 
+
+
 
 
 int main() {
