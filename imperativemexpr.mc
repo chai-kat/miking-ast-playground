@@ -46,13 +46,10 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
             -- TODO: consider passing params as references or renaming in body
             -- could rename all occurences inside the body if we do automatic reference conversion
             let mexpr_body = bindall_ 
-                (map (lam x. 
                     -- dprintLn (translateStmt x);
                     -- printLn (expr2str (translateStmt x));
                     -- printLn "\n";
-                    translateStmt x
-                ) 
-                func.body) 
+                    map translateStmt func.body
             in
             
             -- make a let without a symbol here (let_ does nameNoSym internally)
