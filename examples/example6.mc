@@ -36,6 +36,11 @@ mexpr-extended
 -- top-level lambda which calls the first continuation. 
 -- every time we hit a branch we add a continuation to the stack?¿ 
 
+c expr cont
+match cont with Null
+    then expr
+    else cont expr
+
 
 
 
