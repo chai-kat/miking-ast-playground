@@ -35,7 +35,16 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
         | StmtReturn r -> ulet_ "tmp" r.body --
         | StmtVarDecl decl -> ulet_ decl.ident decl.ty (ref_ decl.value) -- nlet_ decl.ident decl.ty (ref_ decl.value)
         | StmtVarAssign a -> modref_ (var_ a.ident) a.value 
-        -- | 
+        | StmtMatch m -> match_ a.target a.pat a.thn a.els
+        | StmtWhile w -> ureclet_ "tmp" w.body -- needs a match ,, isnt let bindings done when translating tmfuncdecl body? does reclet binding need to be done here?
+
+    -- let rec inner = lam .
+    --     -- could change it so that it passes out a "newenv" for evaluation. 
+    --     match condition with target
+    --     then
+    --         bindall_ (translateStmt body) -- works because every mutable var is a ref 
+    --         inner
+    --     else ()
 
 
     sem translateFuncDecl = 

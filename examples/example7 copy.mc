@@ -13,13 +13,34 @@ int foo(x) {
 
 
 
-if ( x== 5) {
-  return x
-} else {
-  x = x+2
+int foo(x) {
+  if (x == 5) {
+    return x;
+  } else {
+    x = x + 2;
+  }
+  let y = x;
+  return y;
 }
-let y = x
-return y;
+
+[
+
+
+]
+
+
+
+
+int foo(x) {
+  if (x == 5) {
+    return x;
+  } else {
+    x = x + 2;
+    k(x);
+  }
+  let y = x;
+  return y;
+}
 
 let result = match x with 5
 then x
@@ -30,3 +51,5 @@ else modref x ((deref x) + 2)
 -- type regardless of the branch taken, hence if given a case such as: (above), we need a continuation from the else branch to what is next
 -- with the contents of the else branch as the argument
 -- a continuation is required from a branch, only if there is no return statement in said branch -- meaning the if branch does not require one
+
+-- when using a continuation, put it in a lambda
