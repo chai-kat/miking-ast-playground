@@ -35,8 +35,34 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
         | StmtReturn r -> ulet_ "tmp" r.body --
         | StmtVarDecl decl -> ulet_ decl.ident decl.ty (ref_ decl.value) -- nlet_ decl.ident decl.ty (ref_ decl.value)
         | StmtVarAssign a -> modref_ (var_ a.ident) a.value 
-        | StmtMatch m -> match_ a.target a.pat a.thn a.els
-        | StmtWhile w -> ureclet_ "tmp" w.body -- needs a match ,, isnt let bindings done when translating tmfuncdecl body? does reclet binding need to be done here?
+        | StmtMatch m -> 
+            let then_body = bindall_ (map translateStmt m.thn) in
+            let else_body = bindall_ (map translateStmt m.els) in
+            match_ m.target m.pat then_body else_body
+        -- needs a match ,, isnt let bindings done when translating tmfuncdecl body? does reclet binding need to be done here?
+        -- let rec loop = lam .
+        --     match condition with true
+        --     then
+        --         translated_body // bindall_ (translateStmt body) 
+        --         loop
+        --     else ()
+        
+
+        -- recursive let tmp = lam ignore.
+        --     match condition with true
+        --     then
+        --         let ignore_result = body in 
+        --         tmp ()
+        --     else
+        --         ()
+
+        | StmtWhile w -> 
+            let translated_body = bindall_ (map translateStmt w.body) in
+            let true_branch = bindall_ [translated_body, (appf1_ (var_ "tmp") unit_)] in
+            let guard_with_recurse = match_ w.condition ptrue_ true_branch unit_ in
+
+            -- recursive let tmp = lam ignore . guard_with_recurse in
+            ureclet_ "tmp" (ulam_ "ignore" guard_with_recurse)
 
     -- let rec inner = lam .
     --     -- could change it so that it passes out a "newenv" for evaluation. 
@@ -81,7 +107,7 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
             -- let params = func.params in
             let params = reverse func.params in
 
-            
+            -- maybe just use an lams_ here ?
             match params with [] then
                 let translated_func = foldr
                     (lam param. lam acc. (tmLam (NoInfo ()) param.ty param.ident param.tyAnnot) acc) -- function that is being applied onto

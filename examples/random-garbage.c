@@ -35,3 +35,26 @@ int main() {
         //cont2 = if true: cont5 else: cont6
     // if cont0 returns value: return value, else go to next statement? but is this even CPS 
     // (sort of what we were doing in the earlier examples
+
+
+int fib(int n) {
+    int value = 1;
+    while(n != 1) {
+        value *= n;
+    }
+    return value;
+}
+
+let fib = lam n.
+    let value = 1 in
+        let rec loop = lam n.
+            if match condition with true then
+                value
+            else
+                value = value * n;
+                loop (n - 1)
+        in
+        loop n
+    in
+    value
+

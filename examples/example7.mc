@@ -20,10 +20,23 @@ let outer = lam .
     then inner
     else ()
 
-    let rec inner = lam .
-        -- could change it so that it passes out a "newenv" for evaluation. 
-        match condition with target
-        then
-            bindall_ (translateStmt body) -- works because every mutable var is a ref 
-            inner
-        else ()
+-- could change it so that it passes out a "newenv" for evaluation. 
+
+-- works because every mutable var is a ref, including the loop exit condition var
+
+let rec loop = lam .
+  match condition with target
+  then
+      bindall_ (translateStmt body) 
+      inner
+  else ()
+
+
+
+-- int add1(int x) {
+--     return x + 1;
+-- }
+
+let add1 = lam x.
+  let x1 = ref x in
+  x1+1
