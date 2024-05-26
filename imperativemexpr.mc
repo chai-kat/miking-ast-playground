@@ -30,39 +30,73 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
     --     | StmtVarDecl decl -> 
     --     | StmtVarAssign a -> 
 
+    -- is there any way to do this without creating a match case for each pattern? 
+    -- ideally we could just fix it in our stmts -> expr step, 
+    -- but we still have to recurse into the expressions embedded in whichever expr we're translating
+    -- want to use a smap
+
+
+    -- we don't want to overwrite the function argument translation, 
+    -- so this should only be called on translated_body? 
+
+    -- env should contain a list of variables which are immutable (together with their symbols). 
+    -- sem fixReferences env = 
+    --     | TmVar v -> deref_ v
+    --         -- if we don't find it in env, then it's a mutable variable
+    --         match getSymbol env v with
+            
+    --     | x -> smap_Expr_Expr fixReferences x
+
     sem translateStmt = 
-        | StmtExpr e -> ulet_ "tmp" e.body -- what is the purpose of a standalone expression besides side effects?
-        | StmtReturn r -> ulet_ "tmp" r.body --
-        | StmtVarDecl decl -> ulet_ decl.ident decl.ty (ref_ decl.value) -- nlet_ decl.ident decl.ty (ref_ decl.value)
-        | StmtVarAssign a -> modref_ (var_ a.ident) a.value 
-        | StmtMatch m -> 
-            let then_body = bindall_ (map translateStmt m.thn) in
-            let else_body = bindall_ (map translateStmt m.els) in
-            match_ m.target m.pat then_body else_body
-        -- needs a match ,, isnt let bindings done when translating tmfuncdecl body? does reclet binding need to be done here?
-        -- let rec loop = lam .
-        --     match condition with true
-        --     then
-        --         translated_body // bindall_ (translateStmt body) 
-        --         loop
-        --     else ()
-        
-
-        -- recursive let tmp = lam ignore.
-        --     match condition with true
-        --     then
-        --         let ignore_result = body in 
-        --         tmp ()
-        --     else
-        --         ()
-
+        | StmtExpr e -> 
+            -- what is the purpose of a standalone expression besides side effects?
+            -- ulet_ "tmp" e.body
+            lam cont. 
+                let x = nlet_ (nameNoSym "tmp") tyunit_ e.body in 
+                -- type error because the cont is arrow type? is _a1 just a' or is it a -> a'?
+                match x with TmLet x in
+                TmLet {x with inexpr = cont}
+        | StmtReturn r ->
+            -- no need for the let?? could just return r.body directly no?
+            -- (it's an expr, and nothing should come after it)
+            -- nulet_ "tmp" r.body
+            lam cont. r.body
+        | StmtVarDecl decl -> 
+            -- nlet_ decl.ident decl.ty (ref_ decl.value)
+            lam cont. 
+                let x = nlet_ decl.ident decl.ty (ref_ decl.value) in
+                match x with TmLet x in
+                TmLet {x with inexpr = cont}
+        | StmtVarAssign a -> 
+            lam cont. 
+                let x = ulet_ "tmp" (modref_ (nvar_ a.ident) a.value) in
+                match x with TmLet x in
+                TmLet {x with inexpr = cont}
+        | StmtMatch m ->
+            lam cont. 
+            let then_body = foldr (lam continuationApp. lam acc. continuationApp acc) cont (map translateStmt m.thn) in
+            let else_body = foldr (lam continuationApp. lam acc. continuationApp acc) cont (map translateStmt m.els) in
+            -- TODO: change this to avoid using bindall_, and instead fold the continuations
+            -- let then_body = bindall_ (map translateStmt m.thn) in
+            -- let else_body = bindall_ (map translateStmt m.els) in
+            -- let then_body = bind_ then_body cont in
+            -- let else_body = bind_ else_body cont in
+            -- TODO: do we have to put the continuation at the end of both then_body and else_body?
+            -- how would the types match otherwise
+            let match_expr = match_ m.target m.pat (then_body) (else_body) in
+            ulet_ "tmp" match_expr
+            -- TmLet {ident = (nameNoSym "tmp"), tyAnnot = tyunit_, tyBody = tyunit_, body = match_expr, inexpr = cont, ty = tyunknown_, info = NoInfo ()}
         | StmtWhile w -> 
-            let translated_body = bindall_ (map translateStmt w.body) in
+            let translated_body = foldr (lam continuationApp. lam acc. continuationApp acc) unit_ (map translateStmt w.body) in
             let true_branch = bindall_ [translated_body, (appf1_ (var_ "tmp") unit_)] in
             let guard_with_recurse = match_ w.condition ptrue_ true_branch unit_ in
 
             -- recursive let tmp = lam ignore . guard_with_recurse in
-            ureclet_ "tmp" (ulam_ "ignore" guard_with_recurse)
+            lam cont. 
+                let x = ureclet_ "tmp" (ulam_ "ignore" guard_with_recurse) in
+                bind_ x cont
+                -- match x with TmRecLets x in
+                -- TmRecLets {x with inexpr = cont}
 
     -- let rec inner = lam .
     --     -- could change it so that it passes out a "newenv" for evaluation. 
@@ -80,13 +114,16 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
         
             -- TODO: consider passing params as references or renaming in body
             -- could rename all occurences inside the body if we do automatic reference conversion
-            let mexpr_body = bindall_ 
-                    -- dprintLn (translateStmt x);
-                    -- printLn (expr2str (translateStmt x));
-                    -- printLn "\n";
-                    map translateStmt func.body
-            in
-            
+            -- let mexpr_body = bindall_ 
+            --         -- dprintLn (translateStmt x);
+            --         -- printLn (expr2str (translateStmt x));
+            --         -- printLn "\n";
+            --         map translateStmt func.body
+            -- in
+            let last_expr = ulet_ "tmp" unit_ in
+            let mexpr_body = foldr 
+                (lam continuationApp. lam acc. continuationApp acc) last_expr (map translateStmt func.body) in
+
             -- make a let without a symbol here (let_ does nameNoSym internally)
             -- then symbolize later
             -- let_ 
