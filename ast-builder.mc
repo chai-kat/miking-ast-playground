@@ -21,10 +21,11 @@ let varassign_ = use ImperativeMExpr in
     lam ident. lam e. StmtVarAssign {ident = ident, value = e}
 
 let stmtmatch_ = use ImperativeMExpr in
-    lam e. StmtMatch {}
+    lam target_expr. lam pattern_pat. lam thn_stmtlist lam else_stmtlist.
+    StmtMatch {target = target_expr, pattern = pattern_pat, thn = thn_stmtlist els = else_stmtlist}
 
 let while_ = use ImperativeMExpr in
-    lam e. StmtWhile {}
+    lam condexpr. lam stmtlist. StmtWhile {condition = condexpr, body = stmtlist}
 
 let param_ = lam ident. lam ty. {ty = ty, tyAnnot = ty, ident = ident}
 

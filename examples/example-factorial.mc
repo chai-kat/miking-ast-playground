@@ -1,4 +1,4 @@
--- This is for testing while statements
+-- This is a small complete test
 -- Will collect utests and stuff for StmtWhile here too
 
 include "../imperativemexpr.mc"
@@ -15,13 +15,38 @@ include "mexpr/pprint.mc"
 
 lang Foo = ImperativeMExpr + MExprPrettyPrint end
 
+-- show factorial with the following program:
+-- def fact(x):
+--     result = 1
+--     while (x != 1) {
+--         result *= x    
+--         x -= 1
+--     }
+-- return result
+
+
+-- should try something where you get a partially (un)symbolized ast?
+-- e.g. factorial * multiplier (i.e. n! * (multiplier^n)):
+-- let multiplier = 4 in
+    -- def fact2(x):
+    --     result = 1
+    --     while (x != 1) {
+    --         result *= (x * multiplier)
+    --         x -= 1
+    --     }
+    -- return result
+
 mexpr 
 use Foo in
 let imperative_ast = funcdecl_ 
     [
         -- nuvardecl_ (nameNoSym "y") (int_ 5),
-        StmtWhile {condition = true_, body = [nuvardecl_ (nameNoSym "abcd") (int_ 0)]},
-        return_ (nvar_ (nameNoSym "z"))
+        nvardecl_ (nameNoSym "result") tyint_ (int_ 1)
+        while_ (var_ "x") [
+            varassign_ (nameNoSym "result") (muli_ (var_ "result") (var_ "x")), -- result = result*x
+            varassign_ (nameNoSym "x") (subi_ (var_ "x"))  -- x = x-1
+        ]
+        return_ (var_ (nameNoSym "result"))
     ]
 
     tyunknown_
@@ -29,7 +54,7 @@ let imperative_ast = funcdecl_
     -- TODO: handle the case where params is empty!! 
     [
         -- how are these getting symbols when we explicitly say noSym?? Overwriting our environment symbols?
-        param_ (nameNoSym "hello") tyunknown_
+        param_ (nameNoSym "x") tyint_
     ]
  in
 
