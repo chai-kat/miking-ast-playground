@@ -41,12 +41,12 @@ use Foo in
 let imperative_ast = funcdecl_ 
     [
         -- nuvardecl_ (nameNoSym "y") (int_ 5),
-        nvardecl_ (nameNoSym "result") tyint_ (int_ 1)
-        while_ (var_ "x") [
-            varassign_ (nameNoSym "result") (muli_ (var_ "result") (var_ "x")), -- result = result*x
-            varassign_ (nameNoSym "x") (subi_ (var_ "x"))  -- x = x-1
-        ]
-        return_ (var_ (nameNoSym "result"))
+        (nvardecl_ (nameNoSym "result") tyint_ (int_ 1)),
+        (while_ (neqi_ (var_ "x") (int_ 1)) [
+            (varassign_ (nameNoSym "result") (muli_ (var_ "result") (var_ "x"))), -- result = result*x
+            (varassign_ (nameNoSym "x") (subi_ (var_ "x") (int_ 1)))  -- x = x-1
+        ]),
+        return_ (var_ "result")
     ]
 
     tyunknown_

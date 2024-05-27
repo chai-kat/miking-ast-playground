@@ -39,6 +39,11 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
     -- we don't want to overwrite the function argument translation, 
     -- so this should only be called on translated_body? 
 
+    -- variables outside of the argument: immutable
+    -- variables inside the argument: immutable
+    -- rewritten variables: mutable
+    -- every other case should be mutable
+
     -- env should contain a list of variables which are immutable (together with their symbols). 
     -- sem fixReferences env = 
     --     | TmVar v -> deref_ v
@@ -52,7 +57,7 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
             -- what is the purpose of a standalone expression besides side effects?
             -- ulet_ "tmp" e.body
             lam cont. 
-                let x = nlet_ (nameNoSym "tmp") tyunit_ e.body in 
+                let x = nlet_ (nameNoSym "tmpexpr") tyunit_ e.body in 
                 -- type error because the cont is arrow type? is _a1 just a' or is it a -> a'?
                 match x with TmLet x in
                 TmLet {x with inexpr = cont}
@@ -69,7 +74,7 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
                 TmLet {x with inexpr = cont}
         | StmtVarAssign a -> 
             lam cont. 
-                let x = ulet_ "tmp" (modref_ (nvar_ a.ident) a.value) in
+                let x = ulet_ "tmpvassign" (modref_ (nvar_ a.ident) a.value) in
                 match x with TmLet x in
                 TmLet {x with inexpr = cont}
         | StmtMatch m ->
@@ -84,17 +89,18 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
             -- TODO: do we have to put the continuation at the end of both then_body and else_body?
             -- how would the types match otherwise
             let match_expr = match_ m.target m.pat (then_body) (else_body) in
-            ulet_ "tmp" match_expr
+            ulet_ "tmpmatch" match_expr
             -- TmLet {ident = (nameNoSym "tmp"), tyAnnot = tyunit_, tyBody = tyunit_, body = match_expr, inexpr = cont, ty = tyunknown_, info = NoInfo ()}
         | StmtWhile w -> 
             let translated_body = foldr (lam continuationApp. lam acc. continuationApp acc) unit_ (map translateStmt w.body) in
-            let true_branch = bindall_ [translated_body, (appf1_ (var_ "tmp") unit_)] in
+            let true_branch = bindall_ [translated_body, (appf1_ (var_ "tmptrue") unit_)] in
             let guard_with_recurse = match_ w.condition ptrue_ true_branch unit_ in
 
             -- recursive let tmp = lam ignore . guard_with_recurse in
             lam cont. 
-                let x = ureclet_ "tmp" (ulam_ "ignore" guard_with_recurse) in
-                bind_ x cont
+                let x = (ureclet_ "tmp" (ulam_ "ignore" guard_with_recurse)) in
+                let y = bind_ x (ulet_ "tmpapp" (appf1_ (var_ "tmp") unit_)) in 
+                bind_ y cont
                 -- match x with TmRecLets x in
                 -- TmRecLets {x with inexpr = cont}
 
