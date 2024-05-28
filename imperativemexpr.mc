@@ -44,7 +44,7 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
     -- rewritten variables: mutable
     -- every other case should be mutable
 
-    -- env should contain a list of variables which are immutable (together with their symbols). 
+    -- env should contain a list of variables which are mutable (together with their symbols). 
     -- sem fixReferences env = 
     --     | TmVar v -> deref_ v
     --         -- if we don't find it in env, then it's a mutable variable
@@ -52,7 +52,7 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
             
     --     | x -> smap_Expr_Expr fixReferences x
 
-    sem translateStmt = 
+    sem translateStmt names = 
         | StmtExpr e -> 
             -- what is the purpose of a standalone expression besides side effects?
             -- ulet_ "tmp" e.body
@@ -74,18 +74,17 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
                 TmLet {x with inexpr = cont}
         | StmtVarAssign a -> 
             lam cont. 
-                let x = ulet_ "tmpvassign" (modref_ (nvar_ a.ident) a.value) in
+                -- important to generate a symbol here to avoid naming the same thing twice
+                let x = nulet_ (nameSym "tmpvassign") (modref_ (nvar_ a.ident) a.value) in
                 match x with TmLet x in
                 TmLet {x with inexpr = cont}
         | StmtMatch m ->
             lam cont. 
             let then_body = foldr (lam continuationApp. lam acc. continuationApp acc) cont (map translateStmt m.thn) in
             let else_body = foldr (lam continuationApp. lam acc. continuationApp acc) cont (map translateStmt m.els) in
-            -- TODO: change this to avoid using bindall_, and instead fold the continuations
-            -- let then_body = bindall_ (map translateStmt m.thn) in
-            -- let else_body = bindall_ (map translateStmt m.els) in
-            -- let then_body = bind_ then_body cont in
-            -- let else_body = bind_ else_body cont in
+
+            -- consider how to keep state... 
+            -- could do something like foldr 
             -- TODO: do we have to put the continuation at the end of both then_body and else_body?
             -- how would the types match otherwise
             let match_expr = match_ m.target m.pat (then_body) (else_body) in
@@ -149,28 +148,32 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
             -- let [firstparam | restparams] = reverse params in
             -- let params = func.params in
             let params = reverse func.params in
+            let wrapBodyParams = lam body_placeholder.
+                -- maybe just use an lams_ here ?
+                match params with [] then
+                    let translated_func = foldr
+                        (lam param. lam acc. (tmLam (NoInfo ()) param.ty param.ident param.tyAnnot) acc) -- function that is being applied onto
+                        (tmLam (NoInfo ()) tyunknown_ (nameNoSym "") tyunknown_ body_placeholder) -- bottom case; initial acc that is applied onto f
+                        []
+                    in
+                    translated_func
+                else
+                    let firstparam = head params in
+                    let restparams = tail params in
+                    -- dprintLn (tmLam (NoInfo ()) firstparam.ty firstparam.ident firstparam.tyAnnot mexpr_body);
+                    -- printLn (expr2str (tmLam (NoInfo ()) firstparam.ty firstparam.ident firstparam.tyAnnot mexpr_body));
 
-            -- maybe just use an lams_ here ?
-            match params with [] then
-                let translated_func = foldr
-                    (lam param. lam acc. (tmLam (NoInfo ()) param.ty param.ident param.tyAnnot) acc) -- function that is being applied onto
-                    (tmLam (NoInfo ()) tyunknown_ (nameNoSym "") tyunknown_ mexpr_body) -- bottom case; initial acc that is applied onto f
-                    []
+                    let translated_func = foldr
+                        (lam param. lam acc. (tmLam (NoInfo ()) param.ty param.ident param.tyAnnot) acc) -- function that is being applied onto
+                        (tmLam (NoInfo ()) firstparam.ty firstparam.ident firstparam.tyAnnot body_placeholder) -- bottom case; initial acc that is applied onto f
+                        restparams
+                    in 
+                    translated_func
                 in
-                translated_func
-            else
-                let firstparam = head params in
-                let restparams = tail params in
-                -- dprintLn (tmLam (NoInfo ()) firstparam.ty firstparam.ident firstparam.tyAnnot mexpr_body);
-                -- printLn (expr2str (tmLam (NoInfo ()) firstparam.ty firstparam.ident firstparam.tyAnnot mexpr_body));
+                let paramNames = map (lam x. x.ident) params in
 
-                let translated_func = foldr
-                    (lam param. lam acc. (tmLam (NoInfo ()) param.ty param.ident param.tyAnnot) acc) -- function that is being applied onto
-                    (tmLam (NoInfo ()) firstparam.ty firstparam.ident firstparam.tyAnnot mexpr_body) -- bottom case; initial acc that is applied onto f
-                    restparams
-                in 
                 -- translated_func
-            symbolizeExpr env translated_func
+                symbolizeExpr env (wrapBodyParams mexpr_body)
 end
 
 -- TmFuncDecl {
