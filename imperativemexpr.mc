@@ -96,8 +96,7 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
                     ) 
                     (names, [])
                     m.thn
-                with (newNames, thenTranslation)
-            in
+            with (newNames, thenTranslation) in
             let then_body = foldr (lam continuationApp. lam acc. continuationApp acc) cont (reverse thenTranslation) in
 
             -- TODO: fix code duplication in foldr function
@@ -110,8 +109,7 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
                     ) 
                     (names, [])
                     m.els
-                with (newNames1, elseTranslation)
-            in
+            with (newNames1, elseTranslation) in
             let else_body = foldr (lam continuationApp. lam acc. continuationApp acc) cont (reverse elseTranslation) in
             let match_expr = match_ m.target m.pat (then_body) (else_body) in
             (newNames1, ulet_ "tmpmatch" match_expr)
@@ -126,8 +124,7 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
                 ) 
                 (names, [])
                 w.body
-            with (newNames, bodyTranslation)
-            in
+            with (newNames, bodyTranslation) in
             -- could use foldl here? 
             let translated_body = foldr (lam continuationApp. lam acc. continuationApp acc) unit_ (reverse bodyTranslation) in
             let true_branch = bindall_ [translated_body, (appf1_ (var_ "tmptrue") unit_)] in
