@@ -44,64 +44,103 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
     -- rewritten variables: mutable
     -- every other case should be mutable
 
-    -- env should contain a list of variables which are mutable (together with their symbols). 
-    -- sem fixReferences env = 
-    --     | TmVar v -> deref_ v
-    --         -- if we don't find it in env, then it's a mutable variable
-    --         match getSymbol env v with
+    -- env should contain a list of variables which are mutable (together with their symbols). (Could use a map here too but probably not necessary)
+    sem fixReferences namelist = 
+        | TmVar v -> 
+            -- if we don't find it in nameList, then it's immutable
+            let findResult = find (lam x. eqi x v) namelist in
+            match findResult with Some x then
+                deref_ v
+            else
+                v 
             
-    --     | x -> smap_Expr_Expr fixReferences x
+        | x -> smap_Expr_Expr fixReferences x
 
     sem translateStmt names = 
         | StmtExpr e -> 
             -- what is the purpose of a standalone expression besides side effects?
             -- ulet_ "tmp" e.body
-            lam cont. 
-                let x = nlet_ (nameNoSym "tmpexpr") tyunit_ e.body in 
-                -- type error because the cont is arrow type? is _a1 just a' or is it a -> a'?
-                match x with TmLet x in
-                TmLet {x with inexpr = cont}
+            let fixedExprBody = fixReferences names e.body in
+            let contF = lam cont. 
+                let x = nlet_ (nameNoSym "tmpexpr") tyunit_ fixedExprBody in 
+                bind_ x cont
+            in (names, contF)
         | StmtReturn r ->
             -- no need for the let?? could just return r.body directly no?
             -- (it's an expr, and nothing should come after it)
             -- nulet_ "tmp" r.body
-            lam cont. r.body
+            let fixedReturnBody = fixReferences names r.body in
+            let contF = lam cont. fixedReturnBody in
+            (names, contF)
         | StmtVarDecl decl -> 
             -- nlet_ decl.ident decl.ty (ref_ decl.value)
-            lam cont. 
-                let x = nlet_ decl.ident decl.ty (ref_ decl.value) in
-                match x with TmLet x in
-                TmLet {x with inexpr = cont}
+            let fixedDeclValue = fixReferences names decl.value in
+            let contF = lam cont. 
+                let x = nlet_ decl.ident decl.ty (ref_ fixedDeclValue) in
+                bind_ x cont
+            in (cons (decl.ident) names, contF)
         | StmtVarAssign a -> 
-            lam cont. 
-                -- important to generate a symbol here to avoid naming the same thing twice
-                let x = nulet_ (nameSym "tmpvassign") (modref_ (nvar_ a.ident) a.value) in
-                match x with TmLet x in
-                TmLet {x with inexpr = cont}
+            -- important to generate a symbol here to avoid naming the same thing twice
+            let x = nulet_ (nameSym "tmpvassign") (modref_ (nvar_ a.ident) a.value) in
+            let contF = lam cont. 
+                bind_ x cont
+            in (names, contF)
         | StmtMatch m ->
-            lam cont. 
-            let then_body = foldr (lam continuationApp. lam acc. continuationApp acc) cont (map translateStmt m.thn) in
-            let else_body = foldr (lam continuationApp. lam acc. continuationApp acc) cont (map translateStmt m.els) in
+            let contF = lam cont.
+            match 
+                foldr (
+                    lam listVal. lam acc. 
+                    match acc with (nameList, translatedExprs) in
+                    match translateStmt nameList listVal with (newNameList, translatedExpr) in
+                    (newNameList, cons translatedExpr translatedExprs) 
+                    ) 
+                    (names, [])
+                    m.thn
+                with (newNames, thenTranslation)
+            in
+            let then_body = foldr (lam continuationApp. lam acc. continuationApp acc) cont (reverse thenTranslation) in
 
-            -- consider how to keep state... 
-            -- could do something like foldr 
-            -- TODO: do we have to put the continuation at the end of both then_body and else_body?
-            -- how would the types match otherwise
+            -- TODO: fix code duplication in foldr function
+            match 
+                foldr (
+                    lam listVal. lam acc. 
+                    match acc with (nameList, translatedExprs) in
+                    match translateStmt nameList listVal with (newNameList, translatedExpr) in
+                    (newNameList, cons translatedExpr translatedExprs) 
+                    ) 
+                    (names, [])
+                    m.els
+                with (newNames1, elseTranslation)
+            in
+            let else_body = foldr (lam continuationApp. lam acc. continuationApp acc) cont (reverse elseTranslation) in
             let match_expr = match_ m.target m.pat (then_body) (else_body) in
-            ulet_ "tmpmatch" match_expr
-            -- TmLet {ident = (nameNoSym "tmp"), tyAnnot = tyunit_, tyBody = tyunit_, body = match_expr, inexpr = cont, ty = tyunknown_, info = NoInfo ()}
-        | StmtWhile w -> 
-            let translated_body = foldr (lam continuationApp. lam acc. continuationApp acc) unit_ (map translateStmt w.body) in
+            (newNames1, ulet_ "tmpmatch" match_expr)
+
+        | StmtWhile w ->
+            match 
+            foldr (
+                lam listVal. lam acc. 
+                match acc with (nameList, translatedExprs) in
+                match translateStmt nameList listVal with (newNameList, translatedExpr) in
+                (newNameList, cons translatedExpr translatedExprs) 
+                ) 
+                (names, [])
+                w.body
+            with (newNames, bodyTranslation)
+            in
+            -- could use foldl here? 
+            let translated_body = foldr (lam continuationApp. lam acc. continuationApp acc) unit_ (reverse bodyTranslation) in
             let true_branch = bindall_ [translated_body, (appf1_ (var_ "tmptrue") unit_)] in
             let guard_with_recurse = match_ w.condition ptrue_ true_branch unit_ in
 
             -- recursive let tmp = lam ignore . guard_with_recurse in
-            lam cont. 
+            let contF = lam cont. 
                 let x = (ureclet_ "tmp" (ulam_ "ignore" guard_with_recurse)) in
                 let y = bind_ x (ulet_ "tmpapp" (appf1_ (var_ "tmp") unit_)) in 
                 bind_ y cont
                 -- match x with TmRecLets x in
                 -- TmRecLets {x with inexpr = cont}
+            (newNames, contF)
 
     -- let rec inner = lam .
     --     -- could change it so that it passes out a "newenv" for evaluation. 
