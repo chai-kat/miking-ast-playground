@@ -43,7 +43,6 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
 
     sem translateStmt names = 
         | StmtExpr e -> 
-            printLn "expr";
             -- what is the purpose of a standalone expression besides side effects?
             let contF = lam cont. 
                 let x = nlet_ (nameNoSym "tmpexpr") tyunit_ e.body in 
@@ -53,8 +52,6 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
             let contF = lam cont. r.body in
             (names, contF)
         | StmtVarDecl decl -> 
-            printLn (concat "var decl " (nameGetStr decl.ident));
-            map (lam x. printLn (concat "name: " (nameGetStr x))) names;
             let contF = lam cont. 
                 let x = nlet_ decl.ident decl.ty (ref_ decl.value) in
                 bind_ x cont
@@ -80,14 +77,12 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
             in (newNames1, contF)
 
         | StmtWhile w ->
-            printLn "while";
-            map (lam x. printLn (concat "name: " (nameGetStr x))) names;
             match 
                 mapAccumL translateStmt names w.body
             with (newNames, bodyTranslation) in
             -- could use foldr here? 
             let translated_body = foldr (lam continuationApp. lam acc. continuationApp acc) unit_ (bodyTranslation) in
-            let true_branch = bindall_ [translated_body, (appf1_ (var_ "tmptrue") unit_)] in
+            let true_branch = bindall_ [translated_body, (appf1_ (var_ "tmp") unit_)] in
             let guard_with_recurse = match_ w.condition ptrue_ true_branch unit_ in
 
             -- recursive let tmp = lam ignore . guard_with_recurse in
@@ -108,24 +103,38 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
             -- tmLam NoInfo func.ty (nameSym "x") tyAnnot mexpr_body
             -- maybe just use an nlams_ here ?
             let params = reverse func.params in
+
             let wrapBodyParams = lam body_placeholder.
                 match params with [] then
-                    let translated_func = foldr
+                    foldr
                         (lam param. lam acc. (tmLam (NoInfo ()) param.ty param.ident param.tyAnnot) acc) -- function that is being applied onto
                         (tmLam (NoInfo ()) tyunknown_ (nameNoSym "") tyunknown_ body_placeholder) -- bottom case; initial acc that is applied onto f
                         []
-                    in
-                    translated_func
-                else
-                    let firstparam = head params in
-                    let restparams = tail params in
-                    let translated_func = foldr
+                else 
+                    match params with [firstparam] ++ restparams in
+                    foldr
                         (lam param. lam acc. (tmLam (NoInfo ()) param.ty param.ident param.tyAnnot) acc) -- function that is being applied onto
                         (tmLam (NoInfo ()) firstparam.ty firstparam.ident firstparam.tyAnnot body_placeholder) -- bottom case; initial acc that is applied onto f
                         restparams
-                    in 
-                    translated_func
-                in
+            in
+            -- let wrapBodyParams = lam body_placeholder.
+            --     match params with [] then
+            --         let translated_func = foldr
+            --             (lam param. lam acc. (tmLam (NoInfo ()) param.ty param.ident param.tyAnnot) acc) -- function that is being applied onto
+            --             (tmLam (NoInfo ()) tyunknown_ (nameNoSym "") tyunknown_ body_placeholder) -- bottom case; initial acc that is applied onto f
+            --             []
+            --         in
+            --         translated_func
+            --     else
+            --         let firstparam = head params in
+            --         let restparams = tail params in
+            --         let translated_func = foldr
+            --             (lam param. lam acc. (tmLam (NoInfo ()) param.ty param.ident param.tyAnnot) acc) -- function that is being applied onto
+            --             (tmLam (NoInfo ()) firstparam.ty firstparam.ident firstparam.tyAnnot body_placeholder) -- bottom case; initial acc that is applied onto f
+            --             restparams
+            --         in 
+            --         translated_func
+            --     in
                 let paramNames = map (lam x. x.ident) params in
                 match 
                     mapAccumL translateStmt paramNames func.body
