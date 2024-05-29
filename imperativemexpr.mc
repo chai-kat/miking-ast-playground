@@ -117,32 +117,14 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
                         (tmLam (NoInfo ()) firstparam.ty firstparam.ident firstparam.tyAnnot body_placeholder) -- bottom case; initial acc that is applied onto f
                         restparams
             in
-            -- let wrapBodyParams = lam body_placeholder.
-            --     match params with [] then
-            --         let translated_func = foldr
-            --             (lam param. lam acc. (tmLam (NoInfo ()) param.ty param.ident param.tyAnnot) acc) -- function that is being applied onto
-            --             (tmLam (NoInfo ()) tyunknown_ (nameNoSym "") tyunknown_ body_placeholder) -- bottom case; initial acc that is applied onto f
-            --             []
-            --         in
-            --         translated_func
-            --     else
-            --         let firstparam = head params in
-            --         let restparams = tail params in
-            --         let translated_func = foldr
-            --             (lam param. lam acc. (tmLam (NoInfo ()) param.ty param.ident param.tyAnnot) acc) -- function that is being applied onto
-            --             (tmLam (NoInfo ()) firstparam.ty firstparam.ident firstparam.tyAnnot body_placeholder) -- bottom case; initial acc that is applied onto f
-            --             restparams
-            --         in 
-            --         translated_func
-            --     in
-                let paramNames = map (lam x. x.ident) params in
-                match 
-                    mapAccumL translateStmt paramNames func.body
-                with (newNames, bodyTranslation) in
-                let last_expr = ulet_ "tmp" unit_ in
-                let mexpr_body = foldr 
-                    (lam continuationApp. lam acc. continuationApp acc) last_expr (bodyTranslation) in
-                printLn (concat "env before final fix: " (foldr (lam x. lam acc. (concat (nameGetStr x) (concat " " acc))) "" newNames));
-                let fixedTranslatedBody = fixReferences newNames mexpr_body in
-                symbolizeExpr env (wrapBodyParams fixedTranslatedBody)
+            let paramNames = map (lam x. x.ident) params in
+            match 
+                mapAccumL translateStmt paramNames func.body
+            with (newNames, bodyTranslation) in
+            let last_expr = ulet_ "tmp" unit_ in
+            let mexpr_body = foldr 
+                (lam continuationApp. lam acc. continuationApp acc) last_expr (bodyTranslation) in
+            printLn (concat "env before final fix: " (foldr (lam x. lam acc. (concat (nameGetStr x) (concat " " acc))) "" newNames));
+            let fixedTranslatedBody = fixReferences newNames mexpr_body in
+            symbolizeExpr env (wrapBodyParams fixedTranslatedBody)
 end
