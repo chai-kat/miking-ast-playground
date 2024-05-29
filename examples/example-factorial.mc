@@ -40,7 +40,6 @@ mexpr
 use Foo in
 let imperative_ast = funcdecl_ 
     [
-        -- nuvardecl_ (nameNoSym "y") (int_ 5),
         (nvardecl_ (nameNoSym "result") tyint_ (int_ 1)),
         (while_ (neqi_ (var_ "x") (int_ 1)) [
             (varassign_ (nameNoSym "result") (muli_ (var_ "result") (var_ "x"))), -- result = result*x
@@ -51,9 +50,7 @@ let imperative_ast = funcdecl_
 
     tyunknown_
     
-    -- TODO: handle the case where params is empty!! 
     [
-        -- how are these getting symbols when we explicitly say noSym?? Overwriting our environment symbols?
         param_ (nameNoSym "x") tyint_
     ]
  in
