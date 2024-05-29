@@ -60,7 +60,7 @@ let imperative_ast = funcdecl_
 
 -- translateFuncDecl imperative_ast
 
-dprintLn (translateFuncDecl imperative_ast);
+-- dprintLn (translateFuncDecl imperative_ast)
 printLn (expr2str (translateFuncDecl imperative_ast))
 
 -- go with this, it works 

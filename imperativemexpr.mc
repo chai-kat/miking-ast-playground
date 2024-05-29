@@ -47,86 +47,96 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
     -- env should contain a list of variables which are mutable (together with their symbols). (Could use a map here too but probably not necessary)
     sem fixReferences namelist = 
         | TmVar v -> 
+            -- printLn (concat "fixReferences - var: " (nameGetStr v.ident));
+            -- printLn (concat "env: " (foldr (lam x. lam acc. (concat (nameGetStr x) (concat " " acc))) "" namelist));
+            -- printLn "";
+
             -- if we don't find it in nameList, then it's immutable
-            let findResult = find (lam x. eqi x v) namelist in
+            let findResult = find (lam x. nameEqStr x v.ident) namelist in
             match findResult with Some x then
-                deref_ v
+                -- don't we lose the info in the original record by doing this?
+                -- can't we do something like deref_ v without getting type issues? isn't v Ast_Expr?
+                deref_ (nvar_ v.ident)
             else
-                v 
+                (nvar_ v.ident)
             
-        | x -> smap_Expr_Expr fixReferences x
+        | x -> 
+            -- printLn ("fixReferences, alt case");
+            -- printLn (expr2str x);
+            -- printLn (concat "env: " (foldr (lam x. lam acc. (concat (nameGetStr x) (concat " " acc))) "" namelist));
+            -- printLn "";
+
+            smap_Expr_Expr (fixReferences namelist) x
 
     sem translateStmt names = 
         | StmtExpr e -> 
+            printLn "expr";
             -- what is the purpose of a standalone expression besides side effects?
             -- ulet_ "tmp" e.body
-            let fixedExprBody = fixReferences names e.body in
+            -- let fixedExprBody = smap_Expr_Expr (fixReferences names) e.body in
             let contF = lam cont. 
-                let x = nlet_ (nameNoSym "tmpexpr") tyunit_ fixedExprBody in 
+                let x = nlet_ (nameNoSym "tmpexpr") tyunit_ e.body in 
                 bind_ x cont
             in (names, contF)
         | StmtReturn r ->
+            printLn "fixing return data";
             -- no need for the let?? could just return r.body directly no?
             -- (it's an expr, and nothing should come after it)
             -- nulet_ "tmp" r.body
-            let fixedReturnBody = fixReferences names r.body in
-            let contF = lam cont. fixedReturnBody in
+            -- let fixedReturnBody = smap_Expr_Expr (fixReferences names) r.body in
+            let contF = lam cont. r.body in
             (names, contF)
         | StmtVarDecl decl -> 
+            printLn (concat "var decl " (nameGetStr decl.ident));
+            map (lam x. printLn (concat "name: " (nameGetStr x))) names;
             -- nlet_ decl.ident decl.ty (ref_ decl.value)
-            let fixedDeclValue = fixReferences names decl.value in
+            -- let fixedDeclValue = smap_Expr_Expr (fixReferences names) decl.value in
             let contF = lam cont. 
-                let x = nlet_ decl.ident decl.ty (ref_ fixedDeclValue) in
+                let x = nlet_ decl.ident decl.ty (ref_ decl.value) in
                 bind_ x cont
             in (cons (decl.ident) names, contF)
         | StmtVarAssign a -> 
+            printLn "var assign";
             -- important to generate a symbol here to avoid naming the same thing twice
+            -- let fixedAssignValue = smap_Expr_Expr (fixReferences names) a.value in
             let x = nulet_ (nameSym "tmpvassign") (modref_ (nvar_ a.ident) a.value) in
             let contF = lam cont. 
                 bind_ x cont
             in (names, contF)
         | StmtMatch m ->
-            let contF = lam cont.
+            printLn "match";
             match 
-                foldr (
-                    lam listVal. lam acc. 
-                    match acc with (nameList, translatedExprs) in
-                    match translateStmt nameList listVal with (newNameList, translatedExpr) in
-                    (newNameList, cons translatedExpr translatedExprs) 
-                    ) 
-                    (names, [])
-                    m.thn
-            with (newNames, thenTranslation) in
-            let then_body = foldr (lam continuationApp. lam acc. continuationApp acc) cont (reverse thenTranslation) in
+                -- foldr (
+                --     lam listVal. lam acc. 
+                --     match acc with (nameList, translatedExprs) in
+                --     match translateStmt nameList listVal with (newNameList, translatedExpr) in
+                --     (newNameList, cons translatedExpr translatedExprs) 
+                --     ) 
+                --     (names, [])
+                --     m.thn
+                
+                mapAccumL translateStmt names m.thn
 
+            with (newNames, thenTranslation) in
             -- TODO: fix code duplication in foldr function
             match 
-                foldr (
-                    lam listVal. lam acc. 
-                    match acc with (nameList, translatedExprs) in
-                    match translateStmt nameList listVal with (newNameList, translatedExpr) in
-                    (newNameList, cons translatedExpr translatedExprs) 
-                    ) 
-                    (names, [])
-                    m.els
+                mapAccumL translateStmt newNames m.els
             with (newNames1, elseTranslation) in
-            let else_body = foldr (lam continuationApp. lam acc. continuationApp acc) cont (reverse elseTranslation) in
-            let match_expr = match_ m.target m.pat (then_body) (else_body) in
-            (newNames1, ulet_ "tmpmatch" match_expr)
+            let contF = lam cont.
+                let then_body = foldr (lam continuationApp. lam acc. continuationApp acc) cont (thenTranslation) in
+                let else_body = foldr (lam continuationApp. lam acc. continuationApp acc) cont (elseTranslation) in
+                let match_expr = match_ m.target m.pat (then_body) (else_body) in
+                ulet_ "tmpmatch" match_expr
+            in (newNames1, contF)
 
         | StmtWhile w ->
+            printLn "while";
+            map (lam x. printLn (concat "name: " (nameGetStr x))) names;
             match 
-            foldr (
-                lam listVal. lam acc. 
-                match acc with (nameList, translatedExprs) in
-                match translateStmt nameList listVal with (newNameList, translatedExpr) in
-                (newNameList, cons translatedExpr translatedExprs) 
-                ) 
-                (names, [])
-                w.body
+                mapAccumL translateStmt names w.body
             with (newNames, bodyTranslation) in
-            -- could use foldl here? 
-            let translated_body = foldr (lam continuationApp. lam acc. continuationApp acc) unit_ (reverse bodyTranslation) in
+            -- could use foldr here? 
+            let translated_body = foldr (lam continuationApp. lam acc. continuationApp acc) unit_ (bodyTranslation) in
             let true_branch = bindall_ [translated_body, (appf1_ (var_ "tmptrue") unit_)] in
             let guard_with_recurse = match_ w.condition ptrue_ true_branch unit_ in
 
@@ -137,7 +147,7 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
                 bind_ y cont
                 -- match x with TmRecLets x in
                 -- TmRecLets {x with inexpr = cont}
-            (newNames, contF)
+            in (newNames, contF)
 
     -- let rec inner = lam .
     --     -- could change it so that it passes out a "newenv" for evaluation. 
@@ -161,9 +171,6 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
             --         -- printLn "\n";
             --         map translateStmt func.body
             -- in
-            let last_expr = ulet_ "tmp" unit_ in
-            let mexpr_body = foldr 
-                (lam continuationApp. lam acc. continuationApp acc) last_expr (map translateStmt func.body) in
 
             -- make a let without a symbol here (let_ does nameNoSym internally)
             -- then symbolize later
@@ -207,9 +214,16 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
                     translated_func
                 in
                 let paramNames = map (lam x. x.ident) params in
-
+                match 
+                    mapAccumL translateStmt paramNames func.body
+                with (newNames, bodyTranslation) in
+                let last_expr = ulet_ "tmp" unit_ in
+                let mexpr_body = foldr 
+                    (lam continuationApp. lam acc. continuationApp acc) last_expr (bodyTranslation) in
+                printLn (concat "env before final fix: " (foldr (lam x. lam acc. (concat (nameGetStr x) (concat " " acc))) "" newNames));
+                let fixedTranslatedBody = fixReferences newNames mexpr_body in
                 -- translated_func
-                symbolizeExpr env (wrapBodyParams mexpr_body)
+                symbolizeExpr env (wrapBodyParams fixedTranslatedBody)
 end
 
 -- TmFuncDecl {
