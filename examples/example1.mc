@@ -32,8 +32,8 @@ let imperative_ast = TmFuncDecl {
     -- tyAnnot = tyunknown_
 } in
 
-dprintLn (translateFuncDecl imperative_ast)
--- printLn (expr2str (translateFuncDecl imperative_ast))
+-- dprintLn (translateFuncDecl imperative_ast)
+printLn (expr2str (translateFuncDecl imperative_ast))
 
 -- go with this, it works 
 -- nlet_ (concat param.ident "1") param.ty (ref_ (var_ param.ident))
