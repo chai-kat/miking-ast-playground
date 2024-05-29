@@ -17,9 +17,9 @@ use Foo in
 let imperative_ast = funcdecl_ 
     [
         -- nuvardecl_ (nameNoSym "y") (int_ 5),
-        return_ (nvar_ (nameNoSym "x")),
-        return_ (nvar_ (nameNoSym "y")),
-        return_ (nvar_ (nameNoSym "z"))
+        return_ (nvar_ (nameNoSym "x"))
+        --return_ (nvar_ (nameNoSym "y")),
+        --return_ (nvar_ (nameNoSym "z"))
     ]
 
     tyunknown_

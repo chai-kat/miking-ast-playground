@@ -7,7 +7,7 @@ include "mexpr/symbolize.mc"
 include "mexpr/pprint.mc"
 
 --TODO: delete MExprPrettyPrint
-lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
+lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
     -- TODO: maybe change param.ident to param.name
     syn Expr =
         | TmFuncDecl {body: [Stmt], ty: Type, params: [{ty: Type, tyAnnot: Type, ident: Name}]}
@@ -137,14 +137,3 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint
                 let fixedTranslatedBody = fixReferences newNames mexpr_body in
                 symbolizeExpr env (wrapBodyParams fixedTranslatedBody)
 end
-
--- TmFuncDecl {
---     body = [
---         StmtReturn {
---             body = TmConst(0)
---         }
---     ],
---     ty = tyarrows_ [tyunit_, tyint_],
---     params = [],
---     ident = "main"
--- }
