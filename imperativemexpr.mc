@@ -147,7 +147,11 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
             symbolizeExpr env (wrapBodyParams fixedTranslatedBody)
 end
 
+lang ImperativeMExprTestingPrerequisites = 
+    ImperativeMExpr + MCoreCompileLang + LowerNestedPatterns + TypeCheck + BootParser
+end
 mexpr
+use ImperativeMExprTestingPrerequisites in
 let imperative_ast = funcdecl_ 
     [
         (nvardecl_ (nameNoSym "result") tyint_ (int_ 1)),
@@ -175,8 +179,6 @@ let program: String = strJoin "\n" [
       "include \"mexpr/info.mc\"",
       "include \"parser/lexer.mc\"",
       "mexpr",
-      "use Lexer in",
-      "let wrappedNextToken = lam s. result.ok (nextToken s) in",
       expr2str (bindall_ [
         -- Wrap the generated expression in lambdas
         translateFuncDecl imperative_ast

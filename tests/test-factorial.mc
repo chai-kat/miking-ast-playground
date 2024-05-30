@@ -55,10 +55,13 @@ let imperative_ast = funcdecl_
     ]
  in
 
+let fullprogram = bind_ imperative_ast (appf1_ "printLn" (appf1_ "int2string" (appf1_ "fact" (int_ 5))))
+
+
 -- translateFuncDecl imperative_ast
 
 -- dprintLn (translateFuncDecl imperative_ast)
-printLn (expr2str (translateFuncDecl imperative_ast))
+printLn (expr2str (translateFuncDecl program))
 
 -- go with this, it works 
 -- nlet_ (concat param.ident "1") param.ty (ref_ (var_ param.ident))
