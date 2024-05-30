@@ -12,3 +12,6 @@
 -- print deref y
 -- bar(7)
 -- print deref y
+
+-- note for later: all variables technically static in functions, show that it doesn't have unintended side effects
+-- global variables possible by normal derefs (library user's responsibilty to track these)
