@@ -56,28 +56,21 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
             match app1.lhs with TmApp app2 then
                 match app2.lhs with TmConst c then
                     match c.val with CModRef () then
-                        printLn "case 1";
                         TmApp {app1 with rhs = ((fixReferences namelist) app1.rhs)}
                         -- smap_Expr_Expr (fixReferences namelist) (TmApp app1)
                     else
-                        printLn "case 2";
                         -- in this case we know that app2 lhs is a constant but not a modref, so no need to care about it
                         -- let app2FixedRHS = TmApp {app2 with rhs = ((fixReferences namelist) app2.rhs)} in
                         -- TmApp {app1 with lhs = app2FixedRHS, rhs = (smap_Expr_Expr (fixReferences namelist) app1.rhs)}
-
                         -- means we can just reuse this case actually
                         smap_Expr_Expr (fixReferences namelist) (TmApp app1)
-
                         -- smap_Expr_Expr (fixReferences namelist) (TmApp app1)
                 else
-                    printLn "case 3";
                     -- here lhs could be anything except a const, rhs could be anything
                     smap_Expr_Expr (fixReferences namelist) (TmApp app1)
             else 
-                printLn "case 4";
                 -- here app1.lhs is definitely not a TmApp, but that doesn't matter
                 smap_Expr_Expr (fixReferences namelist) (TmApp app1)
-
         | x -> 
             smap_Expr_Expr (fixReferences namelist) x
 
@@ -168,7 +161,12 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
             let last_expr = ulet_ "tmp" unit_ in
             let mexpr_body = foldr 
                 (lam continuationApp. lam acc. continuationApp acc) last_expr (bodyTranslation) in
-            printLn (concat "env before final fix: " (foldr (lam x. lam acc. (concat (nameGetStr x) (concat " " acc))) "" newNames));
+
+            --  do lam x. -> lam x. let x = ref x in ...
+            let referencedParams = bindall_ (map (lam x. (nlet_ x.ident x.ty (ref_ (nvar_ x.ident)))) params) in
+            let mexpr_body = bind_ referencedParams mexpr_body in
+
+            -- printLn (concat "env before final fix: " (foldr (lam x. lam acc. (concat (nameGetStr x) (concat " " acc))) "" newNames));
             let fixedTranslatedBody = fixReferences newNames mexpr_body in
             symbolizeExpr env (wrapBodyParams fixedTranslatedBody)
 end

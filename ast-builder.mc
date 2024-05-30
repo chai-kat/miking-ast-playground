@@ -70,12 +70,11 @@ use ImperativeMExprTestingPrerequisites in
 let imperative_ast = funcdecl_ 
     [
         (nvardecl_ (nameNoSym "result") tyunknown_ (int_ 1)),
-        (varassign_ (nameNoSym "result") (muli_ (var_ "result") (var_ "x"))) -- result = result*x
-        -- (while_ (neqi_ (var_ "x") (int_ 1)) [
-        --     (varassign_ (nameNoSym "result") (muli_ (var_ "result") (var_ "x"))), -- result = result*x
-        --     (varassign_ (nameNoSym "x") (subi_ (var_ "x") (int_ 1)))  -- x = x-1
-        -- ]),
-        -- return_ (var_ "result")
+        (while_ (neqi_ (var_ "x") (int_ 1)) [
+            (varassign_ (nameNoSym "result") (muli_ (var_ "result") (var_ "x"))), -- result = result*x
+            (varassign_ (nameNoSym "x") (subi_ (var_ "x") (int_ 1)))  -- x = x-1
+        ]),
+        return_ (var_ "result")
     ]
 
     tyunknown_
@@ -95,8 +94,8 @@ let program: String = strJoin "\n" [
       "include \"mexpr/info.mc\"",
       "include \"parser/lexer.mc\"",
       "mexpr",
-    --   printLn (expr2str (translateFuncDecl imperative_ast));
-      dprintLn (translateFuncDecl imperative_ast);
+      printLn (expr2str (translateFuncDecl imperative_ast));
+    --   dprintLn (translateFuncDecl imperative_ast);
       expr2str (
         -- Wrap the generated expression in lambdas
         translateFuncDecl imperative_ast
@@ -115,9 +114,9 @@ let program: String = strJoin "\n" [
       with eliminateDeadCode = true }
       with keywords = mexprExtendedKeywords } tmpFilePath
     in
-
     let ast = symbolize ast in
     let ast = typeCheck ast in
+    -- printLn "here2"; we get up to here, lowering fails
     let ast = lowerAll ast in
 
     -- Compile the program
