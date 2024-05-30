@@ -84,25 +84,21 @@ let imperative_ast = funcdecl_
     ]
 in
 
+-- useful functions
+-- printLn (expr2str (translateFuncDecl imperative_ast));
+-- dprintLn (translateFuncDecl imperative_ast);
+
 --let program: String = strJoin "\n" [(expr2str (translateFuncDecl imperative_ast))]
 let program: String = strJoin "\n" [
-      "include \"error.mc\"",
-      "include \"map.mc\"",
-      "include \"result.mc\"",
-      "include \"seq.mc\"",
-      "include \"string.mc\"",
-      "include \"mexpr/info.mc\"",
-      "include \"parser/lexer.mc\"",
+      "include \"mexpr/pprint.mc\"",
       "mexpr",
-      printLn (expr2str (translateFuncDecl imperative_ast));
-    --   dprintLn (translateFuncDecl imperative_ast);
+      "let fact = ",
       expr2str (
-        -- Wrap the generated expression in lambdas
         translateFuncDecl imperative_ast
       ),
-      ""
+      "in printLn (int2string (fact 5))"
     ] in
-
+    printLn program;
     let tmpFilePath = sysTempFileMake () in
     writeFile tmpFilePath program;
 

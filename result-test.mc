@@ -1,10 +1,10 @@
 include "mexpr/pprint.mc"
 
+mexpr
 let fact = lam x.
   let x1 =
     ref
-      (deref
-         x)
+      x
   in
   let result =
     ref
@@ -49,5 +49,5 @@ let fact = lam x.
   in
   deref
     result
-in
+in 
 printLn (int2string (fact 5))
