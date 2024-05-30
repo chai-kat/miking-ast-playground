@@ -1,0 +1,484 @@
+env before final fix: result x 
+LamAst_TmLam {tyParam = (UnknownTypeAst_TyUnknown {info = (NoInfo ())}),
+              tyAnnot = (UnknownTypeAst_TyUnknown {info = (NoInfo ())}),
+              ident = (("x"),symb(300140)),info = (NoInfo ()),
+              body = (LetAst_TmLet {tyAnnot = (UnknownTypeAst_TyUnknown {
+                                    info = (NoInfo ())}),
+                                    tyBody = (UnknownTypeAst_TyUnknown {
+                                    info = (NoInfo ())}),
+                                    inexpr = (RecLetsAst_TmRecLets {bindings = ([
+                                                                    {
+                                                                    tyAnnot = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))}),
+                                                                    tyBody = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))}),
+                                                                    ident = (
+                                                                    ("tmp"),
+                                                                    symb(300142)),
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    body = (LamAst_TmLam {
+                                                                    tyParam = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))}),
+                                                                    tyAnnot = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))}),
+                                                                    ident = (
+                                                                    ("ignore"),
+                                                                    symb(300143)),
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    body = (MatchAst_TmMatch {
+                                                                    target = (AppAst_TmApp {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    rhs = (ConstAst_TmConst {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    val = (IntAst_CInt {
+                                                                    val = 1}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    lhs = (AppAst_TmApp {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    rhs = (AppAst_TmApp {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    rhs = (VarAst_TmVar {
+                                                                    frozen = false,
+                                                                    ident = (
+                                                                    ("x"),
+                                                                    symb(300140)),
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    lhs = (ConstAst_TmConst {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    val = (RefOpAst_CDeRef (
+                                                                    )),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    lhs = (ConstAst_TmConst {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    val = (CmpIntAst_CNeqi (
+                                                                    )),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    thn = (LetAst_TmLet {
+                                                                    tyAnnot = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))}),
+                                                                    tyBody = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))}),
+                                                                    inexpr = (LetAst_TmLet {
+                                                                    tyAnnot = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))}),
+                                                                    tyBody = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))}),
+                                                                    inexpr = (AppAst_TmApp {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    rhs = (RecordAst_TmRecord {
+                                                                    bindings = {
+                                                                    root = (AVLTreeImpl_Leaf (
+                                                                    )),
+                                                                    cmp = subi},
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    ty = (RecordTypeAst_TyRecord {
+                                                                    fields = {
+                                                                    root = (AVLTreeImpl_Leaf (
+                                                                    )),
+                                                                    cmp = subi},
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    lhs = (VarAst_TmVar {
+                                                                    frozen = false,
+                                                                    ident = (
+                                                                    ("tmp"),
+                                                                    symb(300142)),
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ident = (
+                                                                    ("tmpvassign"),
+                                                                    symb(300139)),
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    body = (AppAst_TmApp {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    rhs = (AppAst_TmApp {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    rhs = (ConstAst_TmConst {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    val = (IntAst_CInt {
+                                                                    val = 1}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    lhs = (AppAst_TmApp {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    rhs = (AppAst_TmApp {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    rhs = (VarAst_TmVar {
+                                                                    frozen = false,
+                                                                    ident = (
+                                                                    ("x"),
+                                                                    symb(300140)),
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    lhs = (ConstAst_TmConst {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    val = (RefOpAst_CDeRef (
+                                                                    )),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    lhs = (ConstAst_TmConst {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    val = (ArithIntAst_CSubi (
+                                                                    )),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    lhs = (AppAst_TmApp {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    rhs = (AppAst_TmApp {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    rhs = (VarAst_TmVar {
+                                                                    frozen = false,
+                                                                    ident = (
+                                                                    ("x"),
+                                                                    symb(300140)),
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    lhs = (ConstAst_TmConst {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    val = (RefOpAst_CDeRef (
+                                                                    )),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    lhs = (ConstAst_TmConst {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    val = (RefOpAst_CModRef (
+                                                                    )),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ident = (
+                                                                    ("tmpvassign"),
+                                                                    symb(300138)),
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    body = (AppAst_TmApp {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    rhs = (AppAst_TmApp {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    rhs = (AppAst_TmApp {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    rhs = (VarAst_TmVar {
+                                                                    frozen = false,
+                                                                    ident = (
+                                                                    ("x"),
+                                                                    symb(300140)),
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    lhs = (ConstAst_TmConst {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    val = (RefOpAst_CDeRef (
+                                                                    )),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    lhs = (AppAst_TmApp {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    rhs = (AppAst_TmApp {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    rhs = (VarAst_TmVar {
+                                                                    frozen = false,
+                                                                    ident = (
+                                                                    ("result"),
+                                                                    symb(300141)),
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    lhs = (ConstAst_TmConst {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    val = (RefOpAst_CDeRef (
+                                                                    )),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    lhs = (ConstAst_TmConst {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    val = (ArithIntAst_CMuli (
+                                                                    )),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    lhs = (AppAst_TmApp {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    rhs = (AppAst_TmApp {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    rhs = (VarAst_TmVar {
+                                                                    frozen = false,
+                                                                    ident = (
+                                                                    ("result"),
+                                                                    symb(300141)),
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    lhs = (ConstAst_TmConst {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    val = (RefOpAst_CDeRef (
+                                                                    )),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    lhs = (ConstAst_TmConst {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    val = (RefOpAst_CModRef (
+                                                                    )),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    pat = (BoolPat_PatBool {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    val = true,
+                                                                    ty = (BoolTypeAst_TyBool {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    els = (RecordAst_TmRecord {
+                                                                    bindings = {
+                                                                    root = (AVLTreeImpl_Leaf (
+                                                                    )),
+                                                                    cmp = subi},
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    ty = (RecordTypeAst_TyRecord {
+                                                                    fields = {
+                                                                    root = (AVLTreeImpl_Leaf (
+                                                                    )),
+                                                                    cmp = subi},
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})})}]),
+                                                                    inexpr = (LetAst_TmLet {
+                                                                    tyAnnot = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))}),
+                                                                    tyBody = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))}),
+                                                                    inexpr = (AppAst_TmApp {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    rhs = (VarAst_TmVar {
+                                                                    frozen = false,
+                                                                    ident = (
+                                                                    ("result"),
+                                                                    symb(300141)),
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    lhs = (ConstAst_TmConst {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    val = (RefOpAst_CDeRef (
+                                                                    )),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ident = (
+                                                                    ("tmpapp"),
+                                                                    symb(300144)),
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    body = (AppAst_TmApp {
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    rhs = (RecordAst_TmRecord {
+                                                                    bindings = {
+                                                                    root = (AVLTreeImpl_Leaf (
+                                                                    )),
+                                                                    cmp = subi},
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    ty = (RecordTypeAst_TyRecord {
+                                                                    fields = {
+                                                                    root = (AVLTreeImpl_Leaf (
+                                                                    )),
+                                                                    cmp = subi},
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    lhs = (VarAst_TmVar {
+                                                                    frozen = false,
+                                                                    ident = (
+                                                                    ("tmp"),
+                                                                    symb(300142)),
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                                                    info = (NoInfo (
+                                                                    )),
+                                                                    ty = (UnknownTypeAst_TyUnknown {
+                                                                    info = (NoInfo (
+                                                                    ))})}),
+                                    ident = (("result"),symb(300141)),
+                                    info = (NoInfo ()),
+                                    body = (AppAst_TmApp {info = (NoInfo (
+                                                          )),
+                                                          rhs = (ConstAst_TmConst {
+                                                          info = (NoInfo (
+                                                          )),
+                                                          val = (IntAst_CInt {
+                                                          val = 1}),
+                                                          ty = (UnknownTypeAst_TyUnknown {
+                                                          info = (NoInfo (
+                                                          ))})}),
+                                                          lhs = (ConstAst_TmConst {
+                                                          info = (NoInfo (
+                                                          )),
+                                                          val = (RefOpAst_CRef (
+                                                          )),
+                                                          ty = (UnknownTypeAst_TyUnknown {
+                                                          info = (NoInfo (
+                                                          ))})}),
+                                                          ty = (UnknownTypeAst_TyUnknown {
+                                                          info = (NoInfo (
+                                                          ))})}),
+                                    ty = (UnknownTypeAst_TyUnknown {info = (NoInfo (
+                                                                    ))})}),
+              ty = (UnknownTypeAst_TyUnknown {info = (NoInfo ())})}
+env before final fix: result x 

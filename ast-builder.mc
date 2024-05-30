@@ -63,13 +63,13 @@ let unitfuncdecl_ = use ImperativeMExpr in
 
 
 lang ImperativeMExprTestingPrerequisites = 
-ImperativeMExpr + MCoreCompileLang + LowerNestedPatterns + TypeCheck + BootParser
+ImperativeMExpr + MCoreCompileLang + LowerNestedPatterns + MExprTypeCheck + BootParser
 end
 mexpr
 use ImperativeMExprTestingPrerequisites in
 let imperative_ast = funcdecl_ 
     [
-        (nvardecl_ (nameNoSym "result") tyint_ (int_ 1)),
+        (nvardecl_ (nameNoSym "result") tyunknown_ (int_ 1)),
         (while_ (neqi_ (var_ "x") (int_ 1)) [
             (varassign_ (nameNoSym "result") (muli_ (var_ "result") (var_ "x"))), -- result = result*x
             (varassign_ (nameNoSym "x") (subi_ (var_ "x") (int_ 1)))  -- x = x-1
@@ -80,7 +80,7 @@ let imperative_ast = funcdecl_
     tyunknown_
     
     [
-        param_ (nameNoSym "x") tyint_
+        param_ (nameNoSym "x") tyunknown_
     ]
 in
 
@@ -94,10 +94,12 @@ let program: String = strJoin "\n" [
       "include \"mexpr/info.mc\"",
       "include \"parser/lexer.mc\"",
       "mexpr",
-      expr2str (bindall_ [
+      printLn (expr2str (translateFuncDecl imperative_ast));
+    --   dprintLn (translateFuncDecl imperative_ast);
+      expr2str (
         -- Wrap the generated expression in lambdas
         translateFuncDecl imperative_ast
-      ]),
+      ),
       ""
     ] in
 

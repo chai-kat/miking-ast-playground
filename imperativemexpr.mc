@@ -5,24 +5,7 @@ include "mexpr/ast-builder.mc"
 include "mexpr/type.mc"
 include "mexpr/symbolize.mc"
 include "mexpr/pprint.mc"
-
-include "bool.mc"
-include "common.mc"
-include "error.mc"
-include "map.mc"
-include "math.mc"
-include "name.mc"
-include "option.mc"
-include "result.mc"
-include "seq.mc"
-include "set.mc"
-include "sys.mc"
-include "mexpr/boot-parser.mc"
-include "mexpr/cmp.mc"
-include "mexpr/info.mc"
-include "mexpr/shallow-patterns.mc"
-include "mexpr/type-check.mc"
-include "ocaml/mcore.mc"
+include "mexpr/const-types.mc"
 
 --TODO: delete MExprPrettyPrint
 lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
@@ -55,7 +38,29 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
                 deref_ (TmVar v)
             else
                 TmVar v
-            
+        -- handle modrefs differently
+        -- TmApp {
+        --     lhs = TmApp {
+        --         lhs = TmConst {val = CModRef (), ...},
+        --         rhs = refname (r),
+        --         ...
+        --     },
+        --     rhs = value (v),
+        --     ...
+        -- }
+        
+        | TmApp app1 -> 
+            match app1.lhs with TmApp app2 then
+                match app2.lhs with TmConst c then
+                    match c.val with CModRef () then
+                        TmApp app1
+                    else
+                        smap_Expr_Expr (fixReferences namelist) (TmApp app1)
+                else
+                    smap_Expr_Expr (fixReferences namelist) (TmApp app1)
+            else 
+                smap_Expr_Expr (fixReferences namelist) (TmApp app1)
+
         | x -> 
             smap_Expr_Expr (fixReferences namelist) x
 
@@ -69,9 +74,13 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
         | StmtReturn r ->
             let contF = lam cont. r.body in
             (names, contF)
-        | StmtVarDecl decl -> 
+        | StmtVarDecl decl ->
+            -- TODO: check that the type is not a reference already, then wrap with a reference
+            let referencedType = decl.ty in
+            -- let referencedType = mktyref_ decl.ty in
+
             let contF = lam cont. 
-                let x = nlet_ decl.ident decl.ty (ref_ decl.value) in
+                let x = nlet_ decl.ident referencedType (ref_ decl.value) in
                 bind_ x cont
             in (cons (decl.ident) names, contF)
         | StmtVarAssign a -> 
