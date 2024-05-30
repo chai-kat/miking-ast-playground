@@ -48,14 +48,15 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
         --     rhs = value (v),
         --     ...
         -- }
-        
+
         | TmApp app1 -> 
             match app1.lhs with TmApp app2 then
                 match app2.lhs with TmConst c then
                     match c.val with CModRef () then
                         TmApp app1
                     else
-                        smap_Expr_Expr (fixReferences namelist) (TmApp app1)
+                        TmApp {app1 with rhs = smap_Expr_Expr (fixReferences namelist) (TmApp app2)} 
+                        -- smap_Expr_Expr (fixReferences namelist) (TmApp app1)
                 else
                     smap_Expr_Expr (fixReferences namelist) (TmApp app1)
             else 
