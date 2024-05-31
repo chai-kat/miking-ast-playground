@@ -43,7 +43,7 @@ let varassign_ = use ImperativeMExpr in
 
 let stmtmatch_ = use ImperativeMExpr in
     lam target_expr. lam pattern_pat. lam thn_stmtlist. lam else_stmtlist.
-    StmtMatch {target = target_expr, pattern = pattern_pat, thn = thn_stmtlist, els = else_stmtlist}
+    StmtMatch {target = target_expr, pat = pattern_pat, thn = thn_stmtlist, els = else_stmtlist}
 
 let while_ = use ImperativeMExpr in
     lam condexpr. lam stmtlist. StmtWhile {condition = condexpr, body = stmtlist}
@@ -90,7 +90,7 @@ let imperative_ast2 = funcdecl_
         (nvardecl_ (nameNoSym "x2") tyunknown_ (int_ 1)),
         (nvardecl_ (nameNoSym "sum") tyunknown_ (int_ 0)),
         (nvardecl_ (nameNoSym "n") tyunknown_ (int_ 1)),
-        (stmtmatch_ (lti_ (var_ "x") (int_ 2)) true_ 
+        (stmtmatch_ (lti_ (var_ "x") (int_ 2)) ptrue_
             [(return_ (var_ "x"))] 
             [(while_ (neqi_ (var_ "n") (var_ "x")) [
                 (varassign_ (nameNoSym "sum") (addi_ (var_ "x1") (var_ "x2"))),
@@ -120,7 +120,7 @@ let program: String = strJoin "\n" [
       expr2str (
         translateFuncDecl imperative_ast2
       ),
-      "in printLn (int2string (fib 5))"
+      "in printLn (int2string (fib 6))"
     ] in
     printLn program;
     ()

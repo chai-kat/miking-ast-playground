@@ -111,7 +111,8 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
                 let then_body = foldr (lam continuationApp. lam acc. continuationApp acc) cont (thenTranslation) in
                 let else_body = foldr (lam continuationApp. lam acc. continuationApp acc) cont (elseTranslation) in
                 let match_expr = match_ m.target m.pat (then_body) (else_body) in
-                ulet_ "tmpmatch" match_expr
+                match_expr
+                -- bind_ (ulet_ "tmpmatch" match_expr) cont
             in (newNames1, contF)
 
         | StmtWhile w ->
