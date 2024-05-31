@@ -14,15 +14,16 @@ let imperative_ast = funcdecl_
         (nvardecl_ (nameNoSym "x2") tyint_ (int_ 1)),
         (nvardecl_ (nameNoSym "x1") tyint_ (int_ 0)),
         (nvardecl_ (nameNoSym "sum") tyint_ (int_ 0)),
-        --(stmtmatch_ )             -- base cases (x = 0,1,2?)
         (nvardecl_ (nameNoSym "n") tyint_ (int_ 1)),
-        (while_ (neqi_ (var_ "n") (var_ "x")) [
+        (stmtmatch_ (lti x 2) true 
+        [return_ (var_ "x")] 
+        [(while_ (neqi_ (var_ "n") (var_ "x")) [
             (varassign_ (nameNoSym "sum") (addi_ (var_ "x1") (var_ "x2"))),
             (varassign_ (nameNoSym "x1") (var_ "x2")),
             (varassign_ (nameNoSym "x2") (var_ "sum")),
             (varassign_ (nameNoSym "n") (addi_ (var_ "n") (int_ 1)))
         ]),
-        return_ (var_ "sum")
+        return_ (var_ "sum")])
     ]
 
     tyunknown_
