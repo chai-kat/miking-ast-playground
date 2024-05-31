@@ -67,7 +67,10 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
                     TmApp app1
                 else match c.val with CRef () then
                     -- beats the point if we deref a ref
-                    TmApp app1
+                    match app1.rhs with TmVar v then
+                        TmApp app1
+                    else
+                        TmApp {app1 with rhs = ((fixReferences namelist) app1.rhs)}
                 else
                     smap_Expr_Expr (fixReferences namelist) (TmApp app1) 
             else
@@ -79,7 +82,7 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
         | StmtExpr e -> 
             -- what is the purpose of a standalone expression besides side effects?
             let contF = lam cont. 
-                let x = nlet_ (nameNoSym "tmpexpr") tyunit_ e.body in 
+                let x = nlet_ (nameNoSym "tmpexpr") tyunknown_ e.body in 
                 bind_ x cont
             in (names, contF)
         | StmtReturn r ->
@@ -121,13 +124,15 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
             with (newNames, bodyTranslation) in
             -- could use foldr here? 
             let translated_body = foldr (lam continuationApp. lam acc. continuationApp acc) unit_ (bodyTranslation) in
-            let true_branch = bindall_ [translated_body, (appf1_ (var_ "tmp") unit_)] in
+            let tmp_name = nameSym "tmp" in
+            let true_branch = bindall_ [translated_body, (appf1_ (nvar_ tmp_name) unit_)] in
             let guard_with_recurse = match_ w.condition ptrue_ true_branch unit_ in
 
             -- recursive let tmp = lam ignore . guard_with_recurse in
             let contF = lam cont. 
-                let x = (ureclet_ "tmp" (ulam_ "ignore" guard_with_recurse)) in
-                let y = bind_ x (ulet_ "tmpapp" (appf1_ (var_ "tmp") unit_)) in 
+                --let x = (ureclet_ "tmp" (ulam_ "ignore" guard_with_recurse)) in
+                let x = nureclets_ [(tmp_name, (ulam_ "ignore" guard_with_recurse))] in
+                let y = bind_ x (ulet_ "tmpapp" (appf1_ (nvar_ tmp_name) unit_)) in 
                 bind_ y cont
             in (newNames, contF)
 

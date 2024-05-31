@@ -63,7 +63,7 @@ let unitfuncdecl_ = use ImperativeMExpr in
 
 
 lang ImperativeMExprTestingPrerequisites = 
-ImperativeMExpr + MCoreCompileLang + LowerNestedPatterns + MExprTypeCheck + BootParser
+ImperativeMExpr + MCoreCompileLang + MExprLowerNestedPatterns + MExprTypeCheck + BootParser
 end
 mexpr
 use ImperativeMExprTestingPrerequisites in
@@ -108,6 +108,30 @@ let imperative_ast2 = funcdecl_
     ]
  in
 
+let selectionSort = funcdecl_
+    [
+        (nvardecl_ (nameNoSym "n") tyunknown_ (length_ (var_ "s"))),
+        (nvardecl_ (nameNoSym "i") tyunknown_ (int_ 1)),
+        (while_ (lti_ (var_ "i") (var_ "n")) [
+            (nvardecl_ (nameNoSym "key") tyunknown_ (get_ (var_ "s") (var_ "i"))),
+            (nvardecl_ (nameNoSym "j") tyunknown_ (subi_ (var_ "i") (int_ 1))),
+            (while_ (and_ (geqi_ (var_ "j") (int_ 0)) (gti_ (get_ (var_ "s") (var_ "j")) (var_ "key"))) [
+                (varassign_ (nameNoSym "s") (set_ (var_ "s") (addi_ (var_ "j") (int_ 1)) (get_ (var_ "s") (var_ "j")))),
+                (varassign_ (nameNoSym "j") (subi_ (var_ "j") (int_ 1)))
+            ]),
+            (varassign_ (nameNoSym "s") (set_ (var_ "s") (addi_ (var_ "j") (int_ 1)) (var_ "key"))),
+            (varassign_ (nameNoSym "i") (addi_ (var_ "i") (int_ 1)))
+        ]),
+        return_ (var_ "s")
+    ]
+
+    tyunknown_
+
+    [
+        param_ (nameNoSym "s") tyunknown_
+    ]
+in
+
 -- useful functions
 -- printLn (expr2str (translateFuncDecl imperative_ast));
 -- dprintLn (translateFuncDecl imperative_ast);
@@ -116,11 +140,16 @@ let imperative_ast2 = funcdecl_
 let program: String = strJoin "\n" [
       "include \"mexpr/pprint.mc\"",
       "mexpr",
-      "let fib = ",
+      "let selectionSort = ",
       expr2str (
-        translateFuncDecl imperative_ast2
+        translateFuncDecl selectionSort
       ),
-      "in printLn (int2string (fib 6))"
+      --"in printLn (int2string (fib 6))"
+      "in
+      map (lam s. 
+        print (int2string s);
+        print \" \") (selectionSort [6, 1, 2, 5, 1, 3])"
+      
     ] in
     printLn program;
     ()
@@ -147,7 +176,7 @@ let program: String = strJoin "\n" [
     -- in
     -- let cunit: CompileResult = compileMCore ast (mkEmptyHooks compileOCaml) in
 
-    -- --let res = cunit.run "" [join ["\"", lrptInput parseTest, "\""]] in
+    -- --let res = cunit.run "" [] in
     -- let res = cunit.run "5" in
     -- utest res.stdout with 120 in
     -- utest res.stderr with "" in

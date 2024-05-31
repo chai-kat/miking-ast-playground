@@ -49,4 +49,4 @@ lam x.
   in
   deref
     result
-in printLn (int2string (fact 5))
+in printLn (int2string (fact 1000000))
