@@ -136,4 +136,4 @@ lam s.
 in
       map (lam s. 
         print (int2string s);
-        print " ") (selectionSort [6, 1, 2, 5, 1, 3])
+        print " ") (selectionSort [30, 40, 18, 59, 24, 36, 34, 75, 34, 19])

@@ -13,7 +13,7 @@ def insertion_sort(arr):
 # Example usage:
 arr = [5, 2, 9, 1, 5, 6]
 insertion_sort(arr)
-print(arr)
+print(arr)2
 
 mexpr
 let selectionSort = funcdecl_
