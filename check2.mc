@@ -85,4 +85,4 @@ lam x.
     in
     deref
       sum
-in printLn (int2string (fib 6))
+in printLn (int2string (fib 1000000000))

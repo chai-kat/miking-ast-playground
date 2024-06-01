@@ -67,7 +67,7 @@ ImperativeMExpr + MCoreCompileLang + MExprLowerNestedPatterns + MExprTypeCheck +
 end
 mexpr
 use ImperativeMExprTestingPrerequisites in
-let imperative_ast = funcdecl_ 
+let factorial = funcdecl_ 
     [
         (nvardecl_ (nameNoSym "result") tyunknown_ (int_ 1)),
         (while_ (neqi_ (var_ "x") (int_ 1)) [
@@ -84,7 +84,7 @@ let imperative_ast = funcdecl_
     ]
 in
 
-let imperative_ast2 = funcdecl_ 
+let fibonacci = funcdecl_ 
     [
         (nvardecl_ (nameNoSym "x1") tyunknown_ (int_ 0)),
         (nvardecl_ (nameNoSym "x2") tyunknown_ (int_ 1)),
