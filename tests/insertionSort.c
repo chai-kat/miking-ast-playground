@@ -15,7 +15,7 @@ void insertionSort(int arr[], int n) {
 }
 
 int main() {
-    const int n = 20000;
+    const int n = 1000000;
     int arr[n];
     for (int i = 0; i < n; i++) {
         arr[i] = n - i;
