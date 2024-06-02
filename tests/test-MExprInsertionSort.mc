@@ -2,7 +2,8 @@ include "mexpr/pprint.mc"
 
 mexpr
 let insertionSort = lam array.
-    match (lti (length s) 2) with true then array
+    -- match (lti (length s) 2) with true then array
+    match (lti (length array) 2) with true then array
     else
         recursive let insert_sorted = lam element. lam sorted_arr.
             match sorted_arr with [] then

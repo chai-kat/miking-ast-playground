@@ -67,6 +67,22 @@ ImperativeMExpr + MCoreCompileLang + MExprLowerNestedPatterns + MExprTypeCheck +
 end
 mexpr
 use ImperativeMExprTestingPrerequisites in
+let testVariableAssignment = funcdecl_ 
+    [
+        (nvardecl_ (nameNoSym "y") tyunknown_ (int_ 1)),
+        (varassign_ (nameNoSym "y") (addi_ (var_ "y") (var_ "x"))),
+        (varassign_ (nameNoSym "x") (addi_ (var_ "y") (var_ "x"))),
+        (return_ (var_ "x"))
+    ]
+
+    tyunknown_
+    
+    [
+        param_ (nameNoSym "x") tyunknown_
+    ]
+in
+
+use ImperativeMExprTestingPrerequisites in
 let factorial = funcdecl_ 
     [
         (nvardecl_ (nameNoSym "result") tyunknown_ (int_ 1)),
@@ -140,15 +156,15 @@ in
 let program: String = strJoin "\n" [
       "include \"mexpr/pprint.mc\"",
       "mexpr",
-      "let selectionSort = ",
+      "let fib = ",
       expr2str (
-        translateFuncDecl selectionSort
+        translateFuncDecl testVariableAssignment
       ),
-      --"in printLn (int2string (fib 6))"
-      "in
-      map (lam s. 
-        print (int2string s);
-        print \" \") (selectionSort [6, 1, 2, 5, 1, 3])"
+      "in printLn (int2string (fib 6))"
+    --   "in
+    --   map (lam s. 
+    --     print (int2string s);
+    --     print \" \") (selectionSort [6, 1, 2, 5, 1, 3])"
       
     ] in
     printLn program;
