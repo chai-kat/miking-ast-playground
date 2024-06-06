@@ -1,10 +1,11 @@
 include "mexpr/pprint.mc"
-
 mexpr
+let calls = ref 0 in
 let insertionSort = lam array.
     match (lti (length s) 2) with true then array
     else
         recursive let insert_sorted = lam element. lam sorted_arr.
+            printLn (int2string (deref calls));
             match sorted_arr with [] then
                 [element]
             else
@@ -15,6 +16,8 @@ let insertionSort = lam array.
         in
 
         recursive let sort_recursively = lam unsorted_arr. lam sorted_arr.
+            modref calls (addi (deref calls) 1);
+            print "insert_sorted calls: ";
             match unsorted_arr with [] then
                 sorted_arr
             else
@@ -28,7 +31,9 @@ recursive let fill_sequence = lam s. lam pos. lam len.
     match (eqi len 0) with true then s
     else
         (fill_sequence (cons pos s) (addi pos 1)) (subi len 1)
-in let sequence = fill_sequence [] 0 10000000
+in let sequence = fill_sequence [] 0 100
 in
-(sequence)
--- (insertionSort sequence)
+-- (sequence)
+(insertionSort sequence)
+
+
