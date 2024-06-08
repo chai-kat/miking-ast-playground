@@ -7,7 +7,7 @@ include "mexpr/symbolize.mc"
 include "mexpr/pprint.mc"
 include "mexpr/const-types.mc"
 
---TODO: delete MExprPrettyPrint
+--TODO: delete MExprPrettyPrint + change to MExprSym, MExprAst
 lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
     -- TODO: maybe change param.ident to param.name
     syn Expr =
@@ -78,6 +78,7 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
         | x -> 
             smap_Expr_Expr (fixReferences namelist) x
 
+    sem translateStmt : [Name] -> Stmt -> ([Name], (Expr -> Expr))
     sem translateStmt names = 
         | StmtExpr e -> 
             -- what is the purpose of a standalone expression besides side effects?
@@ -176,5 +177,7 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
 
             -- printLn (concat "env before final fix: " (foldr (lam x. lam acc. (concat (nameGetStr x) (concat " " acc))) "" newNames));
             let fixedTranslatedBody = fixReferences newNames mexpr_body in
-            symbolizeExpr env (wrapBodyParams fixedTranslatedBody)
+            -- symbolizeExpr env (wrapBodyParams fixedTranslatedBody)
+            symbolizeAllowFree (wrapBodyParams fixedTranslatedBody)
+
 end
