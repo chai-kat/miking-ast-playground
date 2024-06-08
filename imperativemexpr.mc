@@ -134,8 +134,8 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
                 --let x = (ureclet_ "tmp" (ulam_ "ignore" guard_with_recurse)) in
                 let x = nureclets_ [(tmp_name, (ulam_ "ignore" guard_with_recurse))] in
                 let tmpAppName=  nameSym "tmpapp" in
-                let y = nulet_ tmpAppName (appf1_ (nvar_ tmp_name) unit_) in 
-                bind_ x y
+                let y = bind_ x (nulet_ tmpAppName (appf1_ (nvar_ tmp_name) unit_)) in 
+                bind_ y cont
             in (newNames, contF)
 
     sem translateFuncDecl = 
