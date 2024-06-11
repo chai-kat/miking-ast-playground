@@ -78,8 +78,8 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
         | x -> 
             smap_Expr_Expr (fixReferences namelist) x
 
-    sem translateStmt : [Name] -> Stmt -> ([Name], (Expr -> Expr))
-    sem translateStmt names = 
+    sem translateStmt : Bool -> [Name] -> Stmt -> ([Name], (Expr -> Expr))
+    sem translateStmt insideWhile names = 
         | StmtExpr e -> 
             -- what is the purpose of a standalone expression besides side effects?
             let contF = lam cont. 
@@ -87,7 +87,12 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
                 bind_ x cont
             in (names, contF)
         | StmtReturn r ->
-            let contF = lam cont. r.body in
+            let contF = 
+                if insideWhile then
+                    lam cont. conapp_ "Some" r.body
+                else
+                    lam cont. r.body
+            in
             (names, contF)
         | StmtVarDecl decl ->
             -- TODO: check that the type is not a reference already, then wrap with a reference
@@ -106,10 +111,10 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
             in (names, contF)
         | StmtMatch m ->
             match 
-                mapAccumL translateStmt names m.thn
+                mapAccumL (translateStmt insideWhile) names m.thn
             with (newNames, thenTranslation) in
             match 
-                mapAccumL translateStmt newNames m.els
+                mapAccumL (translateStmt insideWhile) newNames m.els
             with (newNames1, elseTranslation) in
             let contF = lam cont.
                 let then_body = foldr (lam continuationApp. lam acc. continuationApp acc) cont (thenTranslation) in
@@ -120,22 +125,69 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
             in (newNames1, contF)
 
         | StmtWhile w ->
+            -- mapAccumL (translateStmt false) paramNames  
+            --     [
+            --         ...
+            --         while -> (translateStmt true) names [...]
+            --         ...
+            --     ]
+
+            -- -- we want:
+            -- reclet_ tmpWhile = lam ignore. 
+            --     match_ condition with true then
+            --         -- while body
+            --         -- ...
+            --         -- "return xyz" -> translates to -> Some xyz
+            --         tmpWhile ()
+            --     else
+            --         None
+            -- in
+            -- let_ whileResult = tmpWhile () in
+            -- match_ whileResult with Some x then
+            --     -- if inside nested while: 
+            --         Some x
+            --     -- if not inside nested while 
+            --         x
+            -- else
+                -- cont
+
             match 
-                mapAccumL translateStmt names w.body
+                mapAccumL (translateStmt true) names w.body
             with (newNames, bodyTranslation) in
             -- could use foldr here? 
             let translated_body = foldr (lam continuationApp. lam acc. continuationApp acc) unit_ (bodyTranslation) in
-            let tmp_name = nameSym "tmp" in
+            let tmp_name = nameSym "tmpWhile" in
             let true_branch = bindall_ [translated_body, (appf1_ (nvar_ tmp_name) unit_)] in
             let guard_with_recurse = match_ w.condition ptrue_ true_branch unit_ in
 
             -- recursive let tmp = lam ignore . guard_with_recurse in
             let contF = lam cont. 
                 --let x = (ureclet_ "tmp" (ulam_ "ignore" guard_with_recurse)) in
-                let x = nureclets_ [(tmp_name, (ulam_ "ignore" guard_with_recurse))] in
-                let tmpAppName=  nameSym "tmpapp" in
-                let y = bind_ x (nulet_ tmpAppName (appf1_ (nvar_ tmp_name) unit_)) in 
-                bind_ y cont
+                
+                -- recursive let tmpWhile = lam ignore. (body with recursive guard) in 
+                let whileFunction = nureclets_ [(tmp_name, (ulam_ "ignore" guard_with_recurse))] in
+
+                -- let whileResult = tmpWhile () in
+                let whileResult = nameSym "whileResult" in
+                let x = nameSym "x" in
+                let endWhileMatch = 
+                    if insideWhile then
+                        -- match whileResult with Some x then Some x else cont
+                        match_
+                            (nvar_ whileResult)
+                            (pcon_ "Some" (npvar_ x))
+                            (conapp_ "Some" (nvar_ x))
+                            cont
+                    else
+                        -- match whileResult with Some x then x else cont
+                        match_
+                            (nvar_ whileResult)
+                            (pcon_ "Some" (npvar_ x))
+                            (nvar_ x)
+                            cont
+                in
+                let whileApplication = nulet_ whileResult (appf1_ (nvar_ tmp_name) unit_) in
+                bind_ whileFunction whileApplication
             in (newNames, contF)
 
     sem translateFuncDecl = 
@@ -165,7 +217,7 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
             in
             let paramNames = map (lam x. x.ident) params in
             match 
-                mapAccumL translateStmt paramNames func.body
+                mapAccumL (translateStmt false) paramNames func.body
             with (newNames, bodyTranslation) in
             let last_expr = ulet_ "tmp" unit_ in
             let mexpr_body = foldr 
