@@ -1,7 +1,7 @@
 include "mexpr/pprint.mc"
 mexpr
-let fib = 
-lam x.
+
+let fibonacci = lam x.
   let x1 = ref x in
   let x11 = ref 0 in
   let x2 = ref 1 in
@@ -22,6 +22,9 @@ lam x.
           else
             {}
     in
-    let tmpapp = tmp {} 
-    in deref sum
-in printLn (int2string (fib 6))
+    let tmpapp = tmp {} in
+    deref sum
+in
+
+printLn (int2string (fib 6))
+
