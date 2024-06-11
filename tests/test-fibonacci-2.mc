@@ -12,8 +12,8 @@ use ImperativeMExprTestingPrerequisites in
 
 let imperative_ast = funcdecl_ 
     [
-        (nvardecl_ (nameNoSym "x1") tyunknown_ (int_ 0)),
-        (nvardecl_ (nameNoSym "x2") tyunknown_ (int_ 1)),
+        (nvardecl_ (nameNoSym "a") tyunknown_ (int_ 0)),
+        (nvardecl_ (nameNoSym "b") tyunknown_ (int_ 1)),
         (nvardecl_ (nameNoSym "sum") tyunknown_ (int_ 0)),
         (nvardecl_ (nameNoSym "n") tyunknown_ (int_ 1)),
         (stmtmatch_ (lti_ (var_ "x") (int_ 2)) ptrue_
@@ -21,9 +21,9 @@ let imperative_ast = funcdecl_
             []
         ),
         (while_ (neqi_ (var_ "n") (var_ "x")) [
-                (varassign_ (nameNoSym "sum") (addi_ (var_ "x1") (var_ "x2"))),
-                (varassign_ (nameNoSym "x1") (var_ "x2")),
-                (varassign_ (nameNoSym "x2") (var_ "sum")),
+                (varassign_ (nameNoSym "sum") (addi_ (var_ "a") (var_ "b"))),
+                (varassign_ (nameNoSym "a") (var_ "b")),
+                (varassign_ (nameNoSym "b") (var_ "sum")),
                 (varassign_ (nameNoSym "n") (addi_ (var_ "n") (int_ 1)))
             ]),
         return_ (var_ "sum")
