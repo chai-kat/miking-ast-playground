@@ -89,7 +89,7 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
         | StmtReturn r ->
             let contF = 
                 if insideWhile then
-                    lam cont. conapp_ "Some" r.body
+                    lam cont. (conapp_ "Some" r.body)
                 else
                     lam cont. r.body
             in
@@ -155,39 +155,37 @@ lang ImperativeMExpr = Ast + Sym + MExprPrettyPrint + MExprSym
                 mapAccumL (translateStmt true) names w.body
             with (newNames, bodyTranslation) in
             -- could use foldr here? 
-            let translated_body = foldr (lam continuationApp. lam acc. continuationApp acc) unit_ (bodyTranslation) in
-            let tmp_name = nameSym "tmpWhile" in
-            let true_branch = bindall_ [translated_body, (appf1_ (nvar_ tmp_name) unit_)] in
-            let guard_with_recurse = match_ w.condition ptrue_ true_branch unit_ in
+            let tmpWhile = nameSym "tmpWhile" in
+            let translated_body = foldr (lam continuationApp. lam acc. continuationApp acc) (appf1_ (nvar_ tmpWhile) unit_) (bodyTranslation) in
 
+            let guard_with_recurse = 
+                match_ w.condition ptrue_ 
+                    translated_body
+                    (conapp_ "None" unit_)
+                in
             -- recursive let tmp = lam ignore . guard_with_recurse in
             let contF = lam cont. 
-                --let x = (ureclet_ "tmp" (ulam_ "ignore" guard_with_recurse)) in
-                
                 -- recursive let tmpWhile = lam ignore. (body with recursive guard) in 
-                let whileFunction = nureclets_ [(tmp_name, (ulam_ "ignore" guard_with_recurse))] in
-
-                -- let whileResult = tmpWhile () in
+                let whileFunction = nureclets_ [(tmpWhile, (ulam_ "ignore" guard_with_recurse))] in
                 let whileResult = nameSym "whileResult" in
                 let x = nameSym "x" in
                 let endWhileMatch = 
                     if insideWhile then
                         -- match whileResult with Some x then Some x else cont
                         match_
-                            (nvar_ whileResult)
+                            (appf1_ (nvar_ tmpWhile) unit_) -- tmpWhile ()
                             (pcon_ "Some" (npvar_ x))
                             (conapp_ "Some" (nvar_ x))
                             cont
                     else
                         -- match whileResult with Some x then x else cont
                         match_
-                            (nvar_ whileResult)
+                            (appf1_ (nvar_ tmpWhile) unit_) -- tmpWhile ()
                             (pcon_ "Some" (npvar_ x))
                             (nvar_ x)
                             cont
                 in
-                let whileApplication = nulet_ whileResult (appf1_ (nvar_ tmp_name) unit_) in
-                bind_ whileFunction whileApplication
+                bind_ whileFunction endWhileMatch
             in (newNames, contF)
 
     sem translateFuncDecl = 
