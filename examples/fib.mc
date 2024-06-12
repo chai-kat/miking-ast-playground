@@ -72,17 +72,17 @@ let imperative_ast = funcdecl_
  in
 
  fibonacci(x):
-    x = 0
-    y = 1
-    sum = 0
-    n = 1
+    a = 0;
+    b = 1;
+    sum = 0;
+    n = 1;
     if (x < 2) {
-        return x
-    } else {
-        while (n != x) {
-            sum = x + y
-            x = y
-            y = sum
-        }
-        return sum
+        return x;
     }
+    while (n != x) {
+        sum = a + b;
+        a = b;
+        b = sum;
+        n++;
+    }
+    return sum;

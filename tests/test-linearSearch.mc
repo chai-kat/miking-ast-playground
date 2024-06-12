@@ -37,7 +37,7 @@ let program: String = strJoin "\n" [
     expr2str (
         translateFuncDecl linearSearch
     ),
-      "in printLn (int2string (linearSearch [1, 3, 1, 4, 3] 4))"
+      "in printLn (int2string (linearSearch [1, 3, 1, 4, 3] 3))"
     ] in
     printLn program;
     ()

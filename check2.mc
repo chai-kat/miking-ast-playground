@@ -6,11 +6,11 @@ lam x.
     ref
       x
   in
-  let x11 =
+  let a =
     ref
       0
   in
-  let x2 =
+  let b =
     ref
       1
   in
@@ -50,19 +50,19 @@ lam x.
                 sum
                 (addi
                    (deref
-                      x11)
+                      a)
                    (deref
-                      x2))
+                      b))
             in
             let tmpvassign1 =
               modref
-                x11
+                a
                 (deref
-                   x2)
+                   b)
             in
             let tmpvassign2 =
               modref
-                x2
+                b
                 (deref
                    sum)
             in
@@ -85,4 +85,4 @@ lam x.
     in
     deref
       sum
-in printLn (int2string (fib 1000000000))
+in printLn (int2string (fib 6))
