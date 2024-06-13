@@ -155,11 +155,11 @@ in
 let program: String = strJoin "\n" [
       "include \"mexpr/pprint.mc\"",
       "mexpr",
-      "let fib = ",
+      "let fibonacci = ",
       expr2str (
         translateFuncDecl fibonacci
       ),
-      "in printLn (int2string (fib 6))"
+      "in printLn (int2string (fibonacci 5))"
     --   "in
     --   map (lam s. 
     --     print (int2string s);
