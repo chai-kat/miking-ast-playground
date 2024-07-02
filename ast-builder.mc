@@ -123,7 +123,7 @@ let fibonacci = funcdecl_
     ]
  in
 
-let selectionSort = funcdecl_
+let insertionSort = funcdecl_
     [
         (nvardecl_ (nameNoSym "n") tyunknown_ (length_ (var_ "s"))),
         (nvardecl_ (nameNoSym "i") tyunknown_ (int_ 1)),
@@ -155,15 +155,15 @@ in
 let program: String = strJoin "\n" [
       "include \"mexpr/pprint.mc\"",
       "mexpr",
-      "let fibonacci = ",
+      "let insertionSort = ",
       expr2str (
-        translateFuncDecl fibonacci
+        translateFuncDecl insertionSort
       ),
-      "in printLn (int2string (fibonacci 5))"
-    --   "in
-    --   map (lam s. 
-    --     print (int2string s);
-    --     print \" \") (selectionSort [6, 1, 2, 5, 1, 3])"
+    --   "in printLn (int2string (fibonacci 5))"
+      "in
+      map (lam s. 
+        print (int2string s);
+        print \" \") (insertionSort [6, 1, 2, 5, 1, 3])"
       
     ] in
     printLn program;

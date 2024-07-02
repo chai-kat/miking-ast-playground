@@ -7,7 +7,7 @@ recursive let fib = lam a. lam b. lam n.
     else
       fib b (addi a b) (subi n 1)
 in
-print(int2string((fib 0 1 100000000)))
+print(int2string((fib 0 1 1000000000)))
 
 
 -- let fib = lam x: Int.

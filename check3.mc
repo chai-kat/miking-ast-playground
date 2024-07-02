@@ -1,6 +1,6 @@
 include "mexpr/pprint.mc"
 mexpr
-let selectionSort = 
+let insertionSort = 
 lam s.
   let s1 =
     ref
@@ -17,7 +17,7 @@ lam s.
       1
   in
   recursive
-    let tmp =
+    let tmpWhile =
       lam ignore.
         match
           lti
@@ -44,7 +44,7 @@ lam s.
                  1)
           in
           recursive
-            let tmp1 =
+            let tmpWhile1 =
               lam ignore1.
                 match
                   match
@@ -92,48 +92,59 @@ lam s.
                             j)
                          1)
                   in
-                  tmp1
+                  tmpWhile1
                     {}
                 else
-                  {}
+                  None
+                    {}
           in
-          let tmpapp1 =
-            tmp1
+          match
+            tmpWhile1
               {}
-          in
-          let tmpvassign =
-            modref
-              s1
-              (set
-                 (deref
-                    s1)
-                 (addi
-                    (deref
-                       j)
-                    1)
-                 (deref
-                    key))
-          in
-          let tmpvassign1 =
-            modref
-              i
-              (addi
-                 (deref
-                    i)
-                 1)
-          in
-          tmp
-            {}
+          with
+            Some x1
+          then
+            Some
+              x1
+          else
+            let tmpvassign =
+              modref
+                s1
+                (set
+                   (deref
+                      s1)
+                   (addi
+                      (deref
+                         j)
+                      1)
+                   (deref
+                      key))
+            in
+            let tmpvassign1 =
+              modref
+                i
+                (addi
+                   (deref
+                      i)
+                   1)
+            in
+            tmpWhile
+              {}
         else
-          {}
+          None
+            {}
   in
-  let tmpapp =
-    tmp
+  match
+    tmpWhile
       {}
-  in
-  deref
-    s1
+  with
+    Some x
+  then
+    x
+  else
+    deref
+      s1
 in
       map (lam s. 
         print (int2string s);
-        print " ") (selectionSort [30, 40, 18, 59, 24, 36, 34, 75, 34, 19])
+        print " ") (insertionSort [6, 1, 2, 5, 1, 3])
